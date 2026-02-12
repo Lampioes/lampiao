@@ -1,25 +1,51 @@
+#include <SDL2/SDL.h>
+#include <box2d/box2d.h>
+#include <my-lib/std.h>
+#include <my-lib/math.h>
 #include <iostream>
 
-// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-int main() {
-    // TIP Press <shortcut actionId="RenameElement"/> when your caret is at the
-    // <b>lang</b> variable name to see how CLion can help you rename it.
-    auto lang = "C++";
-    std::cout << "Hello and welcome to " << lang << "!\n";
+const float P2M = 30.0f;
 
-    for (int i = 1; i <= 5; i++) {
-        // TIP Press <shortcut actionId="Debug"/> to start debugging your code.
-        // We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/>
-        // breakpoint for you, but you can always add more by pressing
-        // <shortcut actionId="ToggleLineBreakpoint"/>.
-        std::cout << "i = " << i << std::endl;
+int main(int argc, char** argv) {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) return -1;
+
+    SDL_Window* window = SDL_CreateWindow("Faroeste 2D", SDL_WINDOWPOS_CENTERED,
+                                          SDL_WINDOWPOS_CENTERED, 800, 600, 0);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    b2Vec2 gravity(0.0f, 9.8f);
+    b2World world(gravity);
+
+    b2BodyDef groundBodyDef;
+    groundBodyDef.position.Set(400.0f / P2M, 580.0f / P2M);
+    b2Body* groundBody = world.CreateBody(&groundBodyDef);
+
+    b2PolygonShape groundBox;
+    groundBox.SetAsBox(400.0f / P2M, 10.0f / P2M);
+    groundBody->CreateFixture(&groundBox, 0.0f);
+
+    bool running = true;
+    SDL_Event event;
+
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) running = false;
+        }
+
+        world.Step(1.0f / 60.0f, 6, 2);
+
+        SDL_SetRenderDrawColor(renderer, 135, 206, 235, 255);
+        SDL_RenderClear(renderer);
+
+        SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255);
+        SDL_Rect groundRect = { 0, 570, 800, 20 };
+        SDL_RenderFillRect(renderer, &groundRect);
+
+        SDL_RenderPresent(renderer);
     }
 
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
     return 0;
 }
-
-// TIP See CLion help at <a
-// href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>.
-//  Also, you can try interactive lessons for CLion by selecting
-//  'Help | Learn IDE Features' from the main menu.
