@@ -28,9 +28,7 @@ int main(int argc, char** argv) {
     SDL_Event event;
 
     while (running) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) running = false;
-        }
+        while (SDL_PollEvent(&event)) if (event.type == SDL_QUIT) running = false;
 
         world.Step(1.0f / 60.0f, 6, 2);
 
