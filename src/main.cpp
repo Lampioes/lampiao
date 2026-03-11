@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
     SDL_Window* window = SDL_CreateWindow("Lampiões 2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, 0);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    b2Vec2 gravity(0.0f, 9.8f);
+    b2Vec2 gravity(0.0f, 0.125f);
     b2World world(gravity);
 
     Player player(world, renderer, 100, 100);
