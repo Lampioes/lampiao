@@ -21,7 +21,7 @@ private:
     static constexpr float MOVE_DISTANCE = 20.0f;
     static constexpr float MIN_X = 1.0f;
     static constexpr float MAX_X = 1920.0f / P2M - 1.0f;
-    static constexpr float JUMP_IMPULSE = -10.0f;
+    static constexpr float JUMP_IMPULSE = -5.0f;
 
     void clampPosition();
 
