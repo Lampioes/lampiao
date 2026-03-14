@@ -18,9 +18,9 @@ private:
     float moveSpeed = 0.25f;
 
     static constexpr float P2M = 30.0f;
-    static constexpr float MOVE_DISTANCE = 20.0f;
-    static constexpr float MIN_X = 1.0f;
-    static constexpr float MAX_X = 1920.0f / P2M - 1.0f;
+    static constexpr float MOVE_DISTANCE = 10.0f;
+    static constexpr float MIN_X = -10000.0f;
+    static constexpr float MAX_X =  10000.0f;
     static constexpr float JUMP_IMPULSE = -5.0f;
 
     void clampPosition();
@@ -28,7 +28,7 @@ private:
 public:
     Player(b2World& world, SDL_Renderer* renderer, float x, float y);
     void update();
-    void draw(SDL_Renderer* renderer);
+    void draw(SDL_Renderer* renderer, int cameraX = 0);
     void moveRight();
     void moveLeft();
     void jump();

@@ -59,7 +59,8 @@ void Player::clampPosition() {
 void Player::update() {
     if (isMoving) {
         float diff = targetX - body->GetPosition().x;
-        if (std::abs(diff) < 0.05f) {
+        if (std::abs(diff) < 0.15f) {
+            body->SetTransform(b2Vec2(targetX, body->GetPosition().y), 0);
             body->SetLinearVelocity(b2Vec2(0, body->GetLinearVelocity().y));
             isMoving = false;
         } else {
@@ -78,9 +79,9 @@ void Player::update() {
     }
 }
 
-void Player::draw(SDL_Renderer* renderer) {
-    renderRect.x = (int)(body->GetPosition().x * 26.0f) - 32;
-    renderRect.y = (int)(body->GetPosition().y * 26.0f) - 32;
+void Player::draw(SDL_Renderer* renderer, int cameraX) {
+    renderRect.x = (int)(body->GetPosition().x * P2M) - 75 - cameraX;
+    renderRect.y = (int)(body->GetPosition().y * P2M) - 75;
     renderRect.w = 150;
     renderRect.h = 150;
 
