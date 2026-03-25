@@ -25,3 +25,6 @@ add_executable(JogoVelhoOeste
 # 5. Linka as bibliotecas ao seu projeto
 # Isso diz ao compilador para "unir" o código do SDL e Box2D ao seu executável
 target_link_libraries(JogoVelhoOeste PRIVATE SDL2::SDL2 box2d::box2d SDL2_image::SDL2_image)
+
+# 6. Garante que os headers encontrados pelo find_package fiquem no include path
+target_include_directories(JogoVelhoOeste PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})

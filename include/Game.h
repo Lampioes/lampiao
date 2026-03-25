@@ -2,7 +2,7 @@
 #define GAME_H
 
 #include <array>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <box2d/box2d.h>
 #include "../include/Player.h"
 
