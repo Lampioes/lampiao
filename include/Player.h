@@ -20,6 +20,7 @@ private:
     int stuckFrames = 0;
     int health = 5;
     float shootCooldown = 0.0f;
+    bool onGround = true;
 
     static constexpr float P2M = 30.0f;
     static constexpr float MOVE_DISTANCE = 10.0f;
@@ -49,6 +50,8 @@ public:
 
     bool getIsMoving() const { return isMoving; }
     b2Body* getBody() const { return body; }
+
+    void setOnGround(bool v) { onGround = v; }
 };
 
 #endif

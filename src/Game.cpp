@@ -10,14 +10,9 @@ int Game::run() {
         return -1;
     }
 
-    while (running)
-    {
+    while (running) {
         handleEvents();
-
-        world->Step(1.0f / 60.0f, 6, 2);
-        player->update();
-        updateCamera();
-
+        update(1.0f / 60.0f);
         render();
     }
 
@@ -50,29 +45,23 @@ bool Game::initSDL() {
 }
 
 bool Game::initPhysics() {
-    world = new b2World(b2Vec2(0.0f, 9.8f));
+    world = new b2World(b2Vec2(0.0f, GRAVITY));
     world->SetContactListener(&contactListener);
     return true;
 }
 
 bool Game::loadAssets() {
-    
     terrain = new Terrain(*world);
 
-    
     float playerStartX = 300.0f;
     float playerStartY = terrain->getHeightAt(playerStartX) - 80.0f;
     player = new Player(*world, renderer, playerStartX, playerStartY);
-
     
     bgs[0] = IMG_LoadTexture(renderer, "../sprites/montanhas.jpg");
     bgs[1] = IMG_LoadTexture(renderer, "../sprites/transicao-montanhas-deserto.jpg");
     bgs[2] = IMG_LoadTexture(renderer, "../sprites/calica-deserto.jpg");
     bgs[3] = IMG_LoadTexture(renderer, "../sprites/cidade-deserto.jpg");
     bgs[4] = IMG_LoadTexture(renderer, "../sprites/calica-deserto.jpg");
-
-
-
 
     setupLevel();
     return true;
@@ -153,7 +142,7 @@ void Game::update(float dt) {
         banditSpawnTimer = 0.0f;
     }
 
-    // processCollisions();
+    processCollisions();
     cleanupDead();
     updateCamera();
 }
@@ -169,7 +158,7 @@ void Game::spawnBandit() {
     float spawnX = playerPx + side * (SCREEN_W * 0.6f);
     float spawnY = terrain->getHeightAt(spawnX) - 50.0f;
 
-    bandits.emplace_back(*world, spawnX, spawnY, nextBanditId++);
+    bandits.emplace_back(*world, renderer, spawnX, spawnY, nextBanditId++);
 }
 
 void Game::processCollisions() {
@@ -216,6 +205,10 @@ void Game::processCollisions() {
                     }
                 }
             }
+            if ((a->type == EntityType::PLAYER && b->type == EntityType::TERRAIN) ||
+                (a->type == EntityType::TERRAIN && b->type == EntityType::PLAYER)) {
+                            player->setOnGround(true);
+                }
         }
     }
 }

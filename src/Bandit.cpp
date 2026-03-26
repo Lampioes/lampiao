@@ -2,7 +2,7 @@
 #include "../include/ContactListener.h"
 #include <cmath>
 
-Bandit::Bandit(b2World& world, float x, float y, int id) : banditId(id) {
+Bandit::Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id) : banditId(id) {
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
     bodyDef.position.Set(x / P2M, y / P2M);
@@ -21,38 +21,46 @@ Bandit::Bandit(b2World& world, float x, float y, int id) : banditId(id) {
     fixDef.userData.pointer = reinterpret_cast<uintptr_t>(data);
 
     body->CreateFixture(&fixDef);
+
+    texture = IMG_LoadTexture(renderer, "../sprites/output_ixt5mp.gif");
 }
 
 void Bandit::update(float dt) {
-    if (!alive) return;
-    // Bandido fica parado esperando pra atirar (AI simples)
-    // Gravidade do Box2D cuida de mantê-lo no chão
+    if (!alive);
 }
 
 void Bandit::draw(SDL_Renderer* renderer, int cameraX) {
-    if (!alive || !body) return;
+    if (!body) return;
 
     int x = static_cast<int>(body->GetPosition().x * P2M) - cameraX - WIDTH / 2;
     int y = static_cast<int>(body->GetPosition().y * P2M) - HEIGHT / 2;
 
-    // Corpo (vermelho escuro)
-    SDL_SetRenderDrawColor(renderer, 150, 40, 40, 255);
-    SDL_Rect bodyRect = {x, y, WIDTH, HEIGHT};
-    SDL_RenderFillRect(renderer, &bodyRect);
-
-    // Chapéu (preto)
-    SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-    SDL_Rect hat = {x - 5, y - 10, WIDTH + 10, 12};
-    SDL_RenderFillRect(renderer, &hat);
-
-    // Barra de vida
-    if (health > 0 && health < 3) {
-        float hpRatio = static_cast<float>(health) / 3.0f;
-        int barW = static_cast<int>(WIDTH * hpRatio);
-        SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
-        SDL_Rect hpBar = {x, y - 18, barW, 4};
-        SDL_RenderFillRect(renderer, &hpBar);
+    if (!alive) {
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 80);
+        SDL_Rect r = {x, y, WIDTH, HEIGHT};
+        SDL_RenderFillRect(renderer, &r);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+        return;
     }
+
+    SDL_Rect dst = {x, y, WIDTH, HEIGHT};
+    SDL_RendererFlip flip = facingLeft ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+
+    if (texture) {
+        SDL_RenderCopyEx(renderer, texture, NULL, &dst, 0.0, NULL, flip);
+    } else {
+        SDL_SetRenderDrawColor(renderer, 139, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &dst);
+    }
+
+    float hpRatio = health / 3.0f;
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_Rect bgBar = {x, y - 20, WIDTH, 4};
+    SDL_RenderFillRect(renderer, &bgBar);
+    SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
+    SDL_Rect hpBar = {x, y - 20, static_cast<int>(WIDTH * hpRatio), 4};
+    SDL_RenderFillRect(renderer, &hpBar);
 }
 
 bool Bandit::shouldShoot(float dt) {
@@ -65,10 +73,11 @@ bool Bandit::shouldShoot(float dt) {
     return false;
 }
 
-float Bandit::getShootDirX(float playerX) const {
+float Bandit::getShootDirX(float playerX) {
     if (!body) return 1.0f;
-    float bx = body->GetPosition().x * P2M;
-    return (playerX > bx) ? 1.0f : -1.0f;
+    float myX = body->GetPosition().x * P2M;
+    facingLeft = (playerX < myX);
+    return (playerX > myX) ? 1.0f : -1.0f;
 }
 
 void Bandit::takeDamage() {

@@ -25,33 +25,26 @@ private:
     static constexpr int NUM_ZONES = 5;
     static constexpr int NUM_COWS = 3;
     static constexpr float PEN_X = 500.0f;
-
+    static constexpr float GRAVITY = 0.125f;
 
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
-
-
     b2World* world = nullptr;
     GameContactListener contactListener;
-
-
     Player* player = nullptr;
     Terrain* terrain = nullptr;
-
 
     std::vector<Bullet> bullets;
     std::vector<Bandit> bandits;
     std::vector<Cow> cows;
     std::vector<Fence> fences;
 
-
     std::array<SDL_Texture*, NUM_ZONES> bgs{};
-
 
     int cameraX = 0;
     bool running = true;
     float banditSpawnTimer = 0.0f;
-    float banditSpawnInterval = 6.0f;
+    float banditSpawnInterval = 100.0f;
     int nextBanditId = 0;
     int score = 0;
 

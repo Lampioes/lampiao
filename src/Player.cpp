@@ -45,7 +45,9 @@ void Player::moveLeft() {
 }
 
 void Player::jump() {
+    if (!onGround) return;
     body->ApplyLinearImpulseToCenter(b2Vec2(0, JUMP_IMPULSE), true);
+    onGround = false;
 }
 
 void Player::takeDamage() {
