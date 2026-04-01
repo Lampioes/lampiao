@@ -3,16 +3,19 @@
 
 #include <array>
 #include <vector>
+
 #include <SDL.h>
+#include <SDL_mixer.h>
 #include <box2d/box2d.h>
-#include "Player.h"
-#include "Terrain.h"
-#include "Bullet.h"
-#include "Cow.h"
+
 #include "Bandit.h"
-#include "Fence.h"
-#include "Rope.h"
+#include "Bullet.h"
 #include "ContactListener.h"
+#include "Cow.h"
+#include "Fence.h"
+#include "Player.h"
+#include "Rope.h"
+#include "Terrain.h"
 
 class Game {
 public:
@@ -20,11 +23,10 @@ public:
 
 private:
     static constexpr float P2M = 30.0f;
-    static constexpr int TELA_WIDTH = 1920;
-    static constexpr int TELA_AUTURA = 1080;
-    static constexpr int NUMER_BACKGROUNDS = 5;
+    static constexpr int TELA_WIDTH = Terrain::SCREEN_W;
+    static constexpr int TELA_ALTURA = Terrain::SCREEN_H;
+    static constexpr int NUMERO_BACKGROUNDS = Terrain::NUM_ZONES;
     static constexpr int NUMERO_VACAS = 3;
-    static constexpr int NUMERO_BANDIDOS = 5;
     static constexpr float PEN_X = 500.0f;
     static constexpr float GRAVIDADE = 0.125f;
 
@@ -32,15 +34,16 @@ private:
     SDL_Renderer* renderizacao = nullptr;
     b2World* world = nullptr;
     GameContactListener contactListener;
-    Player* jogado = nullptr;
+    Player* jogador = nullptr;
     Terrain* terreno = nullptr;
 
+    Mix_Music* bgMusic = nullptr;
+    Mix_Chunk* jumpSound = nullptr;
     std::vector<Bullet> balas;
     std::vector<Bandit> bandidos;
     std::vector<Cow> vacas;
     std::vector<Fence> cercas;
-
-    std::array<SDL_Texture*, NUMER_BACKGROUNDS> bgs{};
+    std::array<SDL_Texture*, NUMERO_BACKGROUNDS> bgs{};
 
     int cameraX = 0;
     bool running = true;
@@ -49,9 +52,9 @@ private:
     int nextBanditId = 0;
     int score = 0;
 
-
     bool init();
     bool initSDL();
+    bool initAudio();
     bool initPhysics();
     bool loadAssets();
     void setupLevel();
@@ -66,7 +69,6 @@ private:
     void render();
     void renderBackgrounds();
     void renderHUD();
-
     void cleanup();
 };
 

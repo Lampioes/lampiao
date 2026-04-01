@@ -26,7 +26,34 @@ Bandit::Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id)
 }
 
 void Bandit::update(float dt) {
-    if (!alive);
+    if (!alive) return;
+    body->SetLinearVelocity(b2Vec2(0, body->GetLinearVelocity().y));
+
+    if (reloading) {
+        reloadTimer += dt;
+        if (reloadTimer >= RELOAD_TIME) {
+            reloading = false;
+            reloadTimer = 0.0f;
+            shootTimer = 0.0f;
+        }
+    } else {
+        shootTimer += dt;
+    }
+}
+
+bool Bandit::shouldShoot(float dt, float playerX) {
+    if (!alive || reloading) return false;
+
+    float myX = body->GetPosition().x * P2M;
+    if (std::abs(playerX - myX) > SHOOT_RANGE) return false;
+
+    if (shootTimer >= shootCooldown) {
+        shootTimer = 0.0f;
+        reloading = true;
+        reloadTimer = 0.0f;
+        return true;
+    }
+    return false;
 }
 
 void Bandit::draw(SDL_Renderer* renderer, int cameraX) {
@@ -61,6 +88,13 @@ void Bandit::draw(SDL_Renderer* renderer, int cameraX) {
     SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
     SDL_Rect hpBar = {x, y - 20, static_cast<int>(WIDTH * hpRatio), 4};
     SDL_RenderFillRect(renderer, &hpBar);
+
+    if (reloading) {
+        float reloadRatio = reloadTimer / RELOAD_TIME;
+        SDL_SetRenderDrawColor(renderer, 50, 50, 200, 255);
+        SDL_Rect reloadBar = {x, y - 26, static_cast<int>(WIDTH * reloadRatio), 3};
+        SDL_RenderFillRect(renderer, &reloadBar);
+    }
 }
 
 bool Bandit::shouldShoot(float dt) {

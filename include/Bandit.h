@@ -22,6 +22,7 @@ public:
     float getShootDirX(float playerX);
 
     void destroyBody(b2World& world);
+    bool shouldShoot(float dt, float playerx);
 
 private:
     b2Body* body = nullptr;
@@ -32,6 +33,10 @@ private:
     int health = 3;
     SDL_Texture* texture = nullptr;
     bool facingLeft = false;
+    bool reloading = false;
+    float reloadTimer = 0.0f;
+    static constexpr float RELOAD_TIME = 1.5f;
+    static constexpr float SHOOT_RANGE = 400.0f;
 
     static constexpr float P2M = 30.0f;
     static constexpr int WIDTH = 150;
