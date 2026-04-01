@@ -6,7 +6,7 @@
 
 class Bullet {
 public:
-    Bullet(b2World& world, float x, float y, float dirX, float dirY, bool fromPlayer);
+    Bullet(b2World& world, float x, float y, float dirX, float dirY, bool fromPlayer, SDL_Renderer* renderer);
     ~Bullet() = default;
 
     void draw(SDL_Renderer* renderer, int cameraX);
@@ -22,11 +22,12 @@ private:
     bool alive = true;
     bool fromPlayer;
     float lifetime = 0.0f;
+    SDL_Texture* texture = nullptr;
 
     static constexpr float P2M = 30.0f;
     static constexpr float SPEED = 15.0f;
     static constexpr float MAX_LIFETIME = 3.0f;
-    static constexpr int SIZE = 6;
+    static constexpr int SIZE = 48;
 
 public:
     void update(float dt);

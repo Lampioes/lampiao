@@ -1,8 +1,9 @@
 #include "../include/Bullet.h"
 #include "../include/ContactListener.h"
+#include <SDL_image.h>
 #include <cmath>
 
-Bullet::Bullet(b2World& world, float x, float y, float dirX, float dirY, bool fromPlayer)
+Bullet::Bullet(b2World& world, float x, float y, float dirX, float dirY, bool fromPlayer, SDL_Renderer* renderer)
     : fromPlayer(fromPlayer)
 {
     float len = std::sqrt(dirX * dirX + dirY * dirY);
@@ -33,6 +34,9 @@ Bullet::Bullet(b2World& world, float x, float y, float dirX, float dirY, bool fr
     body->CreateFixture(&fixDef);
 
     body->SetLinearVelocity(b2Vec2(dirX * SPEED, dirY * SPEED));
+
+    // Carrega o sprite
+    texture = IMG_LoadTexture(renderer, "../sprites/bullet.png");
 }
 
 void Bullet::update(float dt) {
@@ -49,14 +53,19 @@ void Bullet::draw(SDL_Renderer* renderer, int cameraX) {
     int x = static_cast<int>(body->GetPosition().x * P2M) - cameraX;
     int y = static_cast<int>(body->GetPosition().y * P2M);
 
-    if (fromPlayer) {
-        SDL_SetRenderDrawColor(renderer, 255, 200, 50, 255);
+    if (texture) {
+        SDL_Rect renderRect = {x - SIZE / 2, y - SIZE / 2, SIZE, SIZE};
+        SDL_RenderCopy(renderer, texture, nullptr, &renderRect);
     } else {
-        SDL_SetRenderDrawColor(renderer, 255, 80, 80, 255);
+        // Fallback: desenha um retângulo colorido se a textura não carregar
+        if (fromPlayer) {
+            SDL_SetRenderDrawColor(renderer, 255, 200, 50, 255);
+        } else {
+            SDL_SetRenderDrawColor(renderer, 255, 80, 80, 255);
+        }
+        SDL_Rect rect = {x - SIZE / 2, y - SIZE / 2, SIZE, SIZE};
+        SDL_RenderFillRect(renderer, &rect);
     }
-
-    SDL_Rect rect = {x - SIZE / 2, y - SIZE / 2, SIZE, SIZE};
-    SDL_RenderFillRect(renderer, &rect);
 }
 
 void Bullet::destroyBody(b2World& world) {

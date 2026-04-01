@@ -103,7 +103,7 @@ void Game::handleEvents() {
                     float py = player->getBody()->GetPosition().y * P2M;
                     float dirX = player->getShootDirX();
                     float spawnX = px + dirX * 80.0f;
-                    bullets.emplace_back(*world, spawnX, py, dirX, 0.0f, true);
+                    bullets.emplace_back(*world, spawnX, py, dirX, 0.0f, true, renderer);
                     player->resetShootCooldown();
                 }
                 break;
@@ -132,7 +132,7 @@ void Game::update(float dt) {
             float bx = bandit.getBody()->GetPosition().x * P2M;
             float by = bandit.getBody()->GetPosition().y * P2M;
             float dirX = bandit.getShootDirX(playerPx);
-            bullets.emplace_back(*world, bx + dirX * 30.0f, by, dirX, 0.0f, false);
+            bullets.emplace_back(*world, bx + dirX * 30.0f, by, dirX, 0.0f, false, renderer);
         }
     }
 
