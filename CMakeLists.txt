@@ -4,12 +4,8 @@ project(JogoVelhoOeste)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 1. Busca o SDL2
 find_package(SDL2 REQUIRED)
- 
-# 2. Busca o Box2D
 find_package(box2d REQUIRED)
-
 # 3. Busca bibliotecas extras do SDL
 # SDL2_image: carregamento de imagens
 # SDL2_mixer: efeitos sonoros e musica de fundo
@@ -24,6 +20,19 @@ add_executable(JogoVelhoOeste
     src/main.cpp
     src/Game.cpp
     src/Player.cpp
+    src/Terrain.cpp
+    src/Bullet.cpp
+    src/Bandit.cpp
+    src/Cow.cpp
+    src/Fence.cpp
+    src/Rope.cpp
+    src/ContactListener.cpp
+)
+
+target_link_libraries(JogoVelhoOeste PRIVATE SDL2::SDL2 box2d::box2d SDL2_image::SDL2_image)
+
+# 6. Garante que os headers encontrados pelo find_package fiquem no include path
+target_include_directories(JogoVelhoOeste PRIVATE ${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
 )
 
 # 6. Linka as bibliotecas ao seu projeto
