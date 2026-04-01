@@ -129,6 +129,126 @@ JogoVelhoOeste/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/build
 .PHONY : JogoVelhoOeste/fast
 
+src/Bandit.o: src/Bandit.cpp.o
+.PHONY : src/Bandit.o
+
+# target to build an object file
+src/Bandit.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Bandit.cpp.o
+.PHONY : src/Bandit.cpp.o
+
+src/Bandit.i: src/Bandit.cpp.i
+.PHONY : src/Bandit.i
+
+# target to preprocess a source file
+src/Bandit.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Bandit.cpp.i
+.PHONY : src/Bandit.cpp.i
+
+src/Bandit.s: src/Bandit.cpp.s
+.PHONY : src/Bandit.s
+
+# target to generate assembly for a file
+src/Bandit.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Bandit.cpp.s
+.PHONY : src/Bandit.cpp.s
+
+src/Bullet.o: src/Bullet.cpp.o
+.PHONY : src/Bullet.o
+
+# target to build an object file
+src/Bullet.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Bullet.cpp.o
+.PHONY : src/Bullet.cpp.o
+
+src/Bullet.i: src/Bullet.cpp.i
+.PHONY : src/Bullet.i
+
+# target to preprocess a source file
+src/Bullet.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Bullet.cpp.i
+.PHONY : src/Bullet.cpp.i
+
+src/Bullet.s: src/Bullet.cpp.s
+.PHONY : src/Bullet.s
+
+# target to generate assembly for a file
+src/Bullet.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Bullet.cpp.s
+.PHONY : src/Bullet.cpp.s
+
+src/ContactListener.o: src/ContactListener.cpp.o
+.PHONY : src/ContactListener.o
+
+# target to build an object file
+src/ContactListener.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/ContactListener.cpp.o
+.PHONY : src/ContactListener.cpp.o
+
+src/ContactListener.i: src/ContactListener.cpp.i
+.PHONY : src/ContactListener.i
+
+# target to preprocess a source file
+src/ContactListener.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/ContactListener.cpp.i
+.PHONY : src/ContactListener.cpp.i
+
+src/ContactListener.s: src/ContactListener.cpp.s
+.PHONY : src/ContactListener.s
+
+# target to generate assembly for a file
+src/ContactListener.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/ContactListener.cpp.s
+.PHONY : src/ContactListener.cpp.s
+
+src/Cow.o: src/Cow.cpp.o
+.PHONY : src/Cow.o
+
+# target to build an object file
+src/Cow.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Cow.cpp.o
+.PHONY : src/Cow.cpp.o
+
+src/Cow.i: src/Cow.cpp.i
+.PHONY : src/Cow.i
+
+# target to preprocess a source file
+src/Cow.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Cow.cpp.i
+.PHONY : src/Cow.cpp.i
+
+src/Cow.s: src/Cow.cpp.s
+.PHONY : src/Cow.s
+
+# target to generate assembly for a file
+src/Cow.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Cow.cpp.s
+.PHONY : src/Cow.cpp.s
+
+src/Fence.o: src/Fence.cpp.o
+.PHONY : src/Fence.o
+
+# target to build an object file
+src/Fence.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Fence.cpp.o
+.PHONY : src/Fence.cpp.o
+
+src/Fence.i: src/Fence.cpp.i
+.PHONY : src/Fence.i
+
+# target to preprocess a source file
+src/Fence.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Fence.cpp.i
+.PHONY : src/Fence.cpp.i
+
+src/Fence.s: src/Fence.cpp.s
+.PHONY : src/Fence.s
+
+# target to generate assembly for a file
+src/Fence.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Fence.cpp.s
+.PHONY : src/Fence.cpp.s
+
 src/Game.o: src/Game.cpp.o
 .PHONY : src/Game.o
 
@@ -177,6 +297,54 @@ src/Player.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Player.cpp.s
 .PHONY : src/Player.cpp.s
 
+src/Rope.o: src/Rope.cpp.o
+.PHONY : src/Rope.o
+
+# target to build an object file
+src/Rope.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Rope.cpp.o
+.PHONY : src/Rope.cpp.o
+
+src/Rope.i: src/Rope.cpp.i
+.PHONY : src/Rope.i
+
+# target to preprocess a source file
+src/Rope.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Rope.cpp.i
+.PHONY : src/Rope.cpp.i
+
+src/Rope.s: src/Rope.cpp.s
+.PHONY : src/Rope.s
+
+# target to generate assembly for a file
+src/Rope.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Rope.cpp.s
+.PHONY : src/Rope.cpp.s
+
+src/Terrain.o: src/Terrain.cpp.o
+.PHONY : src/Terrain.o
+
+# target to build an object file
+src/Terrain.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Terrain.cpp.o
+.PHONY : src/Terrain.cpp.o
+
+src/Terrain.i: src/Terrain.cpp.i
+.PHONY : src/Terrain.i
+
+# target to preprocess a source file
+src/Terrain.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Terrain.cpp.i
+.PHONY : src/Terrain.cpp.i
+
+src/Terrain.s: src/Terrain.cpp.s
+.PHONY : src/Terrain.s
+
+# target to generate assembly for a file
+src/Terrain.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/src/Terrain.cpp.s
+.PHONY : src/Terrain.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -210,12 +378,33 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... JogoVelhoOeste"
+	@echo "... src/Bandit.o"
+	@echo "... src/Bandit.i"
+	@echo "... src/Bandit.s"
+	@echo "... src/Bullet.o"
+	@echo "... src/Bullet.i"
+	@echo "... src/Bullet.s"
+	@echo "... src/ContactListener.o"
+	@echo "... src/ContactListener.i"
+	@echo "... src/ContactListener.s"
+	@echo "... src/Cow.o"
+	@echo "... src/Cow.i"
+	@echo "... src/Cow.s"
+	@echo "... src/Fence.o"
+	@echo "... src/Fence.i"
+	@echo "... src/Fence.s"
 	@echo "... src/Game.o"
 	@echo "... src/Game.i"
 	@echo "... src/Game.s"
 	@echo "... src/Player.o"
 	@echo "... src/Player.i"
 	@echo "... src/Player.s"
+	@echo "... src/Rope.o"
+	@echo "... src/Rope.i"
+	@echo "... src/Rope.s"
+	@echo "... src/Terrain.o"
+	@echo "... src/Terrain.i"
+	@echo "... src/Terrain.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

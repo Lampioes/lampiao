@@ -85,12 +85,12 @@ clean: CMakeFiles/JogoVelhoOeste.dir/clean
 CMakeFiles/JogoVelhoOeste.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/arthurricken/Desktop/Lampioes/lampiao/build/CMakeFiles --progress-num=1,2,3,4 "Built target JogoVelhoOeste"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/arthurricken/Desktop/Lampioes/lampiao/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11 "Built target JogoVelhoOeste"
 .PHONY : CMakeFiles/JogoVelhoOeste.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/JogoVelhoOeste.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/arthurricken/Desktop/Lampioes/lampiao/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/arthurricken/Desktop/Lampioes/lampiao/build/CMakeFiles 11
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/JogoVelhoOeste.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/arthurricken/Desktop/Lampioes/lampiao/build/CMakeFiles 0
 .PHONY : CMakeFiles/JogoVelhoOeste.dir/rule
@@ -102,7 +102,7 @@ JogoVelhoOeste: CMakeFiles/JogoVelhoOeste.dir/rule
 # codegen rule for target.
 CMakeFiles/JogoVelhoOeste.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/JogoVelhoOeste.dir/build.make CMakeFiles/JogoVelhoOeste.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/arthurricken/Desktop/Lampioes/lampiao/build/CMakeFiles --progress-num=1,2,3,4 "Finished codegen for target JogoVelhoOeste"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/arthurricken/Desktop/Lampioes/lampiao/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11 "Finished codegen for target JogoVelhoOeste"
 .PHONY : CMakeFiles/JogoVelhoOeste.dir/codegen
 
 # clean rule for target.

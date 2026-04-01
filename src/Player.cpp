@@ -1,4 +1,5 @@
 #include "../include/Player.h"
+#include "../include/ContactListener.h"
 #include <SDL_image.h>
 #include <cmath>
 
@@ -16,6 +17,10 @@ Player::Player(b2World& world, SDL_Renderer* renderer, float x, float y) {
     fixtureDef.shape = &shape;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.3f;
+
+    EntityData* data = new EntityData{EntityType::PLAYER, 0};
+    fixtureDef.userData.pointer = reinterpret_cast<uintptr_t>(data);
+
     body->CreateFixture(&fixtureDef);
 
     textures.push_back(IMG_LoadTexture(renderer, "../sprites/run-1.png"));
@@ -40,7 +45,13 @@ void Player::moveLeft() {
 }
 
 void Player::jump() {
+    if (!onGround) return;
     body->ApplyLinearImpulseToCenter(b2Vec2(0, JUMP_IMPULSE), true);
+    onGround = false;
+}
+
+void Player::takeDamage() {
+    health--;
 }
 
 void Player::clampPosition() {
@@ -56,17 +67,40 @@ void Player::clampPosition() {
     }
 }
 
-void Player::update() {
+void Player::update(float dt) {
+    
+    if (shootCooldown > 0.0f) {
+        shootCooldown -= dt;
+    }
+
     if (isMoving) {
-        float diff = targetX - body->GetPosition().x;
+        float currentX = body->GetPosition().x;
+        float diff = targetX - currentX;
+
         if (std::abs(diff) < 0.15f) {
             body->SetTransform(b2Vec2(targetX, body->GetPosition().y), 0);
             body->SetLinearVelocity(b2Vec2(0, body->GetLinearVelocity().y));
             isMoving = false;
+            stuckFrames = 0;
         } else {
-            float dir = (diff > 0) ? 1.0f : -1.0f;
-            body->SetLinearVelocity(b2Vec2(dir * moveSpeed, body->GetLinearVelocity().y));
+            // Detecta se está travado (colidindo com cerca/parede)
+            if (std::abs(currentX - lastX) < 0.001f) {
+                stuckFrames++;
+                if (stuckFrames > 3) {
+                    isMoving = false;
+                    stuckFrames = 0;
+                    body->SetLinearVelocity(b2Vec2(0, body->GetLinearVelocity().y));
+                }
+            } else {
+                stuckFrames = 0;
+            }
+
+            if (isMoving) {
+                float dir = (diff > 0) ? 1.0f : -1.0f;
+                body->SetLinearVelocity(b2Vec2(dir * moveSpeed, body->GetLinearVelocity().y));
+            }
         }
+        lastX = currentX;
     }
 
     clampPosition();
@@ -86,5 +120,26 @@ void Player::draw(SDL_Renderer* renderer, int cameraX) {
     renderRect.h = 150;
 
     SDL_RendererFlip flip = facingLeft ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    SDL_RenderCopyEx(renderer, textures[currentFrame], NULL, &renderRect, 0.0, NULL, flip);
+
+    
+    if (!textures.empty() && textures[currentFrame]) {
+        SDL_RenderCopyEx(renderer, textures[currentFrame], NULL, &renderRect, 0.0, NULL, flip);
+    } else {
+        
+        SDL_SetRenderDrawColor(renderer, 50, 130, 50, 255);
+        SDL_Rect body_rect = {renderRect.x + 30, renderRect.y + 20, 90, 110};
+        SDL_RenderFillRect(renderer, &body_rect);
+
+        
+        SDL_SetRenderDrawColor(renderer, 139, 90, 43, 255);
+        SDL_Rect hat = {renderRect.x + 20, renderRect.y, 110, 25};
+        SDL_RenderFillRect(renderer, &hat);
+    }
+
+    
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    for (int i = 0; i < health; ++i) {
+        SDL_Rect heart = {renderRect.x + i * 14, renderRect.y - 20, 12, 12};
+        SDL_RenderFillRect(renderer, &heart);
+    }
 }
