@@ -3,6 +3,7 @@
 
 #include <array>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <box2d/box2d.h>
 #include "../include/Player.h"
 
@@ -25,11 +26,15 @@ private:
     std::array<SDL_Texture *, NUM_ZONES> bgs{};
     std::array<int, NUM_ZONES> floorY{570, 570, 570};
 
+    Mix_Music *bgMusic = nullptr;
+    Mix_Chunk *jumpSound = nullptr;
+
     int cameraX = 0;
     bool running = true;
 
     bool init();
     bool initSDL();
+    bool initAudio();
     bool initPhysics();
     bool loadAssets();
 

@@ -28,17 +28,23 @@ int Game::run()
 
 bool Game::init()
 {
-    return initSDL() && initPhysics() && loadAssets();
+    return initSDL() && initAudio() && initPhysics() && loadAssets();
 }
 
 bool Game::initSDL()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+    {
+        SDL_Log("Erro ao iniciar SDL: %s", SDL_GetError());
         return false;
+    }
 
     const int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
     if ((IMG_Init(imgFlags) & imgFlags) != imgFlags)
+    {
+        SDL_Log("Erro ao iniciar SDL_image: %s", IMG_GetError());
         return false;
+    }
 
     window = SDL_CreateWindow(
         "Lampioes 2D",
@@ -49,12 +55,36 @@ bool Game::initSDL()
         0);
 
     if (!window)
+    {
+        SDL_Log("Erro ao criar janela: %s", SDL_GetError());
         return false;
+    }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer)
+    {
+        SDL_Log("Erro ao criar renderer: %s", SDL_GetError());
         return false;
+    }
 
+    return true;
+}
+
+bool Game::initAudio()
+{
+    if ((Mix_Init(MIX_INIT_OGG) & MIX_INIT_OGG) != MIX_INIT_OGG)
+    {
+        SDL_Log("Erro ao iniciar SDL_mixer: %s", Mix_GetError());
+        return false;
+    }
+
+    if (Mix_OpenAudio(48000, AUDIO_S16SYS, 2, 2048) < 0)
+    {
+        SDL_Log("Erro ao abrir audio: %s", Mix_GetError());
+        return false;
+    }
+
+    Mix_AllocateChannels(16);
     return true;
 }
 
@@ -86,7 +116,33 @@ bool Game::loadAssets()
     for (int i = 0; i < NUM_ZONES; ++i)
     {
         if (!bgs[i])
+        {
+            SDL_Log("Erro ao carregar background %d: %s", i, IMG_GetError());
             return false;
+        }
+    }
+
+    bgMusic = Mix_LoadMUS("../audio/bg.ogg");
+    if (!bgMusic)
+    {
+        SDL_Log("Erro ao carregar musica: %s", Mix_GetError());
+        return false;
+    }
+
+    jumpSound = Mix_LoadWAV("../audio/jump.wav");
+    if (!jumpSound)
+    {
+        SDL_Log("Erro ao carregar efeito de pulo: %s", Mix_GetError());
+        return false;
+    }
+
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+    Mix_VolumeChunk(jumpSound, MIX_MAX_VOLUME / 2);
+
+    if (Mix_PlayMusic(bgMusic, -1) < 0)
+    {
+        SDL_Log("Erro ao tocar musica: %s", Mix_GetError());
+        return false;
     }
 
     return true;
@@ -112,6 +168,7 @@ void Game::handleEvents()
                 break;
             case SDLK_SPACE:
                 player->jump();
+                Mix_PlayChannel(-1, jumpSound, 0);
                 break;
             case SDLK_ESCAPE:
                 running = false;
@@ -176,6 +233,21 @@ void Game::renderGround()
 
 void Game::cleanup()
 {
+    if (jumpSound)
+    {
+        Mix_FreeChunk(jumpSound);
+        jumpSound = nullptr;
+    }
+
+    if (bgMusic)
+    {
+        Mix_FreeMusic(bgMusic);
+        bgMusic = nullptr;
+    }
+
+    Mix_CloseAudio();
+    Mix_Quit();
+
     for (int i = 0; i < NUM_ZONES; ++i)
     {
         if (bgs[i])

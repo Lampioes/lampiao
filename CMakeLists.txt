@@ -6,22 +6,27 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 1. Busca o SDL2
 find_package(SDL2 REQUIRED)
-
+ 
 # 2. Busca o Box2D
 find_package(box2d REQUIRED)
 
+# 3. Busca bibliotecas extras do SDL
+# SDL2_image: carregamento de imagens
+# SDL2_mixer: efeitos sonoros e musica de fundo
 find_package(SDL2_image REQUIRED)
+find_package(SDL2_mixer REQUIRED)
 
-# 3. Define onde está a sua My-lib (header-only)
+# 4. Define onde está a sua My-lib (header-only)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../my-lib/include")
 
-# 4. Cria o executável
+# 5. Cria o executável
 add_executable(JogoVelhoOeste
     src/main.cpp
     src/Game.cpp
     src/Player.cpp
 )
 
-# 5. Linka as bibliotecas ao seu projeto
-# Isso diz ao compilador para "unir" o código do SDL e Box2D ao seu executável
-target_link_libraries(JogoVelhoOeste PRIVATE SDL2::SDL2 box2d::box2d SDL2_image::SDL2_image)
+# 6. Linka as bibliotecas ao seu projeto
+# Isso diz ao compilador para "unir" o codigo do SDL, Box2D,
+# carregamento de imagens e sistema de audio ao executavel
+target_link_libraries(JogoVelhoOeste PRIVATE SDL2::SDL2 box2d::box2d SDL2_image::SDL2_image SDL2_mixer::SDL2_mixer)

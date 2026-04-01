@@ -1,8 +1,5 @@
 # ninja log v5
-25	726	1773885537575622900	CMakeFiles/JogoVelhoOeste.dir/src/Game.cpp.o	6f07074ca93e0ae
-729	1072	1773885537923423200	JogoVelhoOeste	884de9fb9663ab46
-32	1432	1773874478875515600	CMakeFiles/JogoVelhoOeste.dir/src/Player.cpp.o	414e743d56be7c9d
-32	1009	1774571741858451800	CMakeFiles/JogoVelhoOeste.dir/src/main.cpp.o	c1ea959a876053c3
 27	700	1774571787295197400	CMakeFiles/JogoVelhoOeste.dir/src/main.cpp.o	c1ea959a876053c3
-28	726	1774571787323251600	CMakeFiles/JogoVelhoOeste.dir/src/Game.cpp.o	6f07074ca93e0ae
+32	1432	1773874478875515600	CMakeFiles/JogoVelhoOeste.dir/src/Player.cpp.o	414e743d56be7c9d
 729	1233	1774571787852825600	JogoVelhoOeste	9a0103580d5f3f91
+28	726	1774571787323251600	CMakeFiles/JogoVelhoOeste.dir/src/Game.cpp.o	6f07074ca93e0ae
