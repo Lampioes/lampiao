@@ -26,7 +26,11 @@ Bandit::Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id)
 }
 
 void Bandit::update(float dt) {
-    if (!alive);
+    if (!alive) {
+        return;
+    }
+
+    (void)dt;
 }
 
 void Bandit::draw(SDL_Renderer* renderer, int cameraX) {

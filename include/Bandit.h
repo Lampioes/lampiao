@@ -1,8 +1,8 @@
 #ifndef BANDIT_H
 #define BANDIT_H
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <box2d/box2d.h>
 
 class Bandit {

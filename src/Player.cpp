@@ -1,6 +1,6 @@
 #include "../include/Player.h"
 #include "../include/ContactListener.h"
-#include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 #include <cmath>
 
 Player::Player(b2World& world, SDL_Renderer* renderer, float x, float y) {

@@ -1,7 +1,7 @@
 #ifndef BULLET_H
 #define BULLET_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <box2d/box2d.h>
 
 class Bullet {

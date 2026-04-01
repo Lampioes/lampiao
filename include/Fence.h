@@ -1,7 +1,7 @@
 #ifndef FENCE_H
 #define FENCE_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <box2d/box2d.h>
 
 class Fence {

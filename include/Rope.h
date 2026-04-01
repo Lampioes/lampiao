@@ -1,7 +1,7 @@
 #ifndef ROPE_H
 #define ROPE_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <box2d/box2d.h>
 #include <list>
 

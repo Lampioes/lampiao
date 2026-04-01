@@ -1,7 +1,7 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <box2d/box2d.h>
 #include <array>
 #include <vector>
