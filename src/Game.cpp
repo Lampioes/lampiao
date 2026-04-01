@@ -307,6 +307,15 @@ void Game::cleanupDead() {
             ++it;
         }
     }
+
+    for (auto it = bandidos.begin(); it != bandidos.end();) {
+        if (!it->isAlive()) {
+            it->destroyBody(*world);
+            it = bandidos.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void Game::render() {
