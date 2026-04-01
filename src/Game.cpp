@@ -59,9 +59,9 @@ bool Game::loadAssets() {
     
     bgs[0] = IMG_LoadTexture(renderizacao, "../sprites/montanhas.jpg");
     bgs[1] = IMG_LoadTexture(renderizacao, "../sprites/transicao-montanhas-deserto.jpg");
-    bgs[2] = IMG_LoadTexture(renderizacao, "../sprites/calica-deserto.jpg");
-    bgs[3] = IMG_LoadTexture(renderizacao, "../sprites/cidade-deserto.jpg");
-    bgs[4] = IMG_LoadTexture(renderizacao, "../sprites/calica-deserto.jpg");
+    bgs[2] = IMG_LoadTexture(renderizacao, "../sprites/calica-deserto.png");
+    bgs[3] = IMG_LoadTexture(renderizacao, "../sprites/cidade-deserto.png");
+    bgs[4] = IMG_LoadTexture(renderizacao, "../sprites/calica-deserto.png");
 
     setupLevel();
     return true;
@@ -103,7 +103,7 @@ void Game::handleEvents() {
                     float py = jogado->getBody()->GetPosition().y * P2M;
                     float dirX = jogado->getShootDirX();
                     float spawnX = px + dirX * 80.0f;
-                    bala.emplace_back(*world, spawnX, py, dirX, 0.0f, true);
+                    balas.emplace_back(*world, spawnX, py, dirX, 0.0f, true);
                     jogado->resetShootCooldown();
                 }
                 break;
@@ -120,9 +120,7 @@ void Game::update(float dt) {
 
     jogado->update(dt);
 
-    for (auto& b : bala) {
-        b.update(dt);
-    }
+    for (auto& b : balas) b.update(dt);
 
     float playerPx = jogado->getBody()->GetPosition().x * P2M;
     for (auto& bandit : bandidos) {
@@ -132,7 +130,7 @@ void Game::update(float dt) {
             float bx = bandit.getBody()->GetPosition().x * P2M;
             float by = bandit.getBody()->GetPosition().y * P2M;
             float dirX = bandit.getShootDirX(playerPx);
-            bala.emplace_back(*world, bx + dirX * 30.0f, by, dirX, 0.0f, false);
+            balas.emplace_back(*world, bx + dirX * 30.0f, by, dirX, 0.0f, false);
         }
     }
 
@@ -171,7 +169,7 @@ void Game::processCollisions() {
         if (a->type > b->type) std::swap(a, b);
 
         if (a->type == EntityType::BULLET_PLAYER && b->type == EntityType::BANDIT) {
-            for (auto& bullet : bala) {
+            for (auto& bullet : balas) {
                 if (bullet.isFromPlayer() && bullet.isAlive()) {
                     bullet.kill();
                     break;
@@ -188,7 +186,7 @@ void Game::processCollisions() {
 
         if (a->type == EntityType::PLAYER && b->type == EntityType::BULLET_BANDIT) {
             jogado->takeDamage();
-            for (auto& bullet : bala) {
+            for (auto& bullet : balas) {
                 if (!bullet.isFromPlayer() && bullet.isAlive()) {
                     bullet.kill();
                     break;
@@ -198,7 +196,7 @@ void Game::processCollisions() {
 
         if (b->type == EntityType::TERRAIN) {
             if (a->type == EntityType::BULLET_PLAYER || a->type == EntityType::BULLET_BANDIT) {
-                for (auto& bullet : bala) {
+                for (auto& bullet : balas) {
                     if (bullet.isAlive()) {
                         bullet.kill();
                         break;
@@ -209,17 +207,6 @@ void Game::processCollisions() {
                 (a->type == EntityType::TERRAIN && b->type == EntityType::PLAYER)) {
                             jogado->setOnGround(true);
                 }
-        }
-    }
-}
-
-void Game::cleanupDead() {
-    for (auto it = bala.begin(); it != bala.end(); ) {
-        if (!it->isAlive()) {
-            it->destroyBody(*world);
-            it = bala.erase(it);
-        } else {
-            ++it;
         }
     }
 }
@@ -243,7 +230,7 @@ void Game::render() {
         bandit.draw(renderizacao, cameraX);
     }
 
-    for (auto& bullet : bala) {
+    for (auto& bullet : balas) {
         bullet.draw(renderizacao, cameraX);
     }
 
@@ -262,7 +249,7 @@ void Game::renderBackgrounds() {
         if (screenX + TELA_WIDTH < 0 || screenX > TELA_WIDTH) continue;
 
         int bgIndex = ((z % NUMER_BACKGROUNDS) + NUMER_BACKGROUNDS) % NUMER_BACKGROUNDS;
-        SDL_Rect dst = {screenX, 0, TELA_WIDTH, TELA_WIDTH};
+        SDL_Rect dst = {screenX, 0, TELA_WIDTH, TELA_AUTURA};
 
         if (bgs[bgIndex]) {
             SDL_RenderCopy(renderizacao, bgs[bgIndex], nullptr, &dst);
@@ -283,13 +270,33 @@ void Game::renderHUD() {
     SDL_RenderFillRect(renderizacao, &scoreBar);
 }
 
+void Game::cleanupDead() {
+    for (auto it = balas.begin(); it != balas.end(); ) {
+        if (!it->isAlive()) {
+            it->destroyBody(*world);
+            it = balas.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    for (auto it = bandidos.begin(); it != bandidos.end(); ) {
+        if (!it->isAlive()) {
+            it->destroyBody(*world);
+            it = bandidos.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
 void Game::cleanup() {
-    for (auto& b : bala)  b.destroyBody(*world);
+    for (auto& b : balas)  b.destroyBody(*world);
     for (auto& b : bandidos)  b.destroyBody(*world);
     for (auto& c : vacas)     c.destroyBody(*world);
     for (auto& f : cercas)   f.destroyBody(*world);
 
-    bala.clear();
+    balas.clear();
     bandidos.clear();
     vacas.clear();
     cercas.clear();

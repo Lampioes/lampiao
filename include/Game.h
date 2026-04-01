@@ -35,7 +35,7 @@ private:
     Player* jogado = nullptr;
     Terrain* terreno = nullptr;
 
-    std::vector<Bullet> bala;
+    std::vector<Bullet> balas;
     std::vector<Bandit> bandidos;
     std::vector<Cow> vacas;
     std::vector<Fence> cercas;

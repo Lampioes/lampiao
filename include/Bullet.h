@@ -26,7 +26,7 @@ private:
     static constexpr float P2M = 30.0f;
     static constexpr float SPEED = 15.0f;
     static constexpr float MAX_LIFETIME = 3.0f;
-    static constexpr int SIZE = 6;
+    static constexpr int SIZE = 20;
 
 public:
     void update(float dt);
