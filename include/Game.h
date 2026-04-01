@@ -20,26 +20,27 @@ public:
 
 private:
     static constexpr float P2M = 30.0f;
-    static constexpr int SCREEN_W = 1920;
-    static constexpr int SCREEN_H = 1080;
-    static constexpr int NUM_ZONES = 5;
-    static constexpr int NUM_COWS = 3;
+    static constexpr int TELA_WIDTH = 1920;
+    static constexpr int TELA_AUTURA = 1080;
+    static constexpr int NUMER_BACKGROUNDS = 5;
+    static constexpr int NUMERO_VACAS = 3;
+    static constexpr int NUMERO_BANDIDOS = 5;
     static constexpr float PEN_X = 500.0f;
-    static constexpr float GRAVITY = 0.125f;
+    static constexpr float GRAVIDADE = 0.125f;
 
-    SDL_Window* window = nullptr;
-    SDL_Renderer* renderer = nullptr;
+    SDL_Window* janela = nullptr;
+    SDL_Renderer* renderizacao = nullptr;
     b2World* world = nullptr;
     GameContactListener contactListener;
-    Player* player = nullptr;
-    Terrain* terrain = nullptr;
+    Player* jogado = nullptr;
+    Terrain* terreno = nullptr;
 
-    std::vector<Bullet> bullets;
-    std::vector<Bandit> bandits;
-    std::vector<Cow> cows;
-    std::vector<Fence> fences;
+    std::vector<Bullet> bala;
+    std::vector<Bandit> bandidos;
+    std::vector<Cow> vacas;
+    std::vector<Fence> cercas;
 
-    std::array<SDL_Texture*, NUM_ZONES> bgs{};
+    std::array<SDL_Texture*, NUMER_BACKGROUNDS> bgs{};
 
     int cameraX = 0;
     bool running = true;
