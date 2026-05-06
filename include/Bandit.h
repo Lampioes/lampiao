@@ -13,10 +13,10 @@ public:
     void update(float dt);
     void draw(SDL_Renderer* renderer, int cameraX);
 
-    bool isAlive() const { return alive; }
+    bool isAlive() const { return vivo; }
     void takeDamage();
-    b2Body* getBody() const { return body; }
-    int getId() const { return banditId; }
+    b2Body* getBody() const { return corpo; }
+    int getId() const { return idBandido; }
 
     float getShootDirX(float playerX);
 
@@ -24,22 +24,22 @@ public:
     bool shouldShoot(float dt, float playerx);
 
 private:
-    b2Body* body = nullptr;
-    int banditId;
-    bool alive = true;
-    float shootTimer = 0.0f;
-    float shootCooldown = 2.5f;
-    int health = 3;
-    SDL_Texture* texture = nullptr;
-    bool facingLeft = false;
-    bool reloading = false;
-    float reloadTimer = 0.0f;
-    static constexpr float RELOAD_TIME = 1.5f;
-    static constexpr float SHOOT_RANGE = 400.0f;
+    b2Body* corpo = nullptr;
+    int idBandido;
+    bool vivo = true;
+    float temporizadorTiro = 0.0f;
+    float recargaTiro = 2.5f;
+    int vida = 3;
+    SDL_Texture* textura = nullptr;
+    bool viradoEsquerda = false;
+    bool recarregando = false;
+    float temporizadorRecarga = 0.0f;
+    static constexpr float TEMPO_RECARGA = 1.5f;
+    static constexpr float ALCANCE_TIRO = 400.0f;
 
     static constexpr float P2M = 30.0f;
-    static constexpr int WIDTH = 150;
-    static constexpr int HEIGHT = 180;
+    static constexpr int LARGURA = 150;
+    static constexpr int ALTURA = 180;
 };
 
 #endif

@@ -22,34 +22,34 @@ public:
 
 private:
     static constexpr float P2M = 30.0f;
-    static constexpr int TELA_WIDTH = Terrain::SCREEN_W;
-    static constexpr int TELA_ALTURA = Terrain::SCREEN_H;
-    static constexpr int NUMERO_BACKGROUNDS = Terrain::NUM_ZONES;
-    static constexpr int NUMERO_VACAS = 3;
+    static constexpr int TELA_WIDTH = Terrain::TELA_W;
+    static constexpr int TELA_ALTURA = Terrain::TELA_H;
+    static constexpr int NUMERO_BACKGROUNDS = Terrain::NUM_ZONAS;
+    static constexpr int NUMERO_VACAS = 10;
     static constexpr float PEN_X = 500.0f;
     static constexpr float GRAVIDADE = 0.125f;
 
     SDL_Window* janela = nullptr;
     SDL_Renderer* renderizacao = nullptr;
-    b2World* world = nullptr;
-    GameContactListener contactListener;
+    b2World* mundo = nullptr;
+    GameContactListener ouvinteContato;
     Player* jogador = nullptr;
     Terrain* terreno = nullptr;
 
-    Mix_Music* bgMusic = nullptr;
-    Mix_Chunk* jumpSound = nullptr;
+    Mix_Music* musicaFundo = nullptr;
+    Mix_Chunk* somPulo = nullptr;
     std::vector<Bullet> balas;
     std::vector<Bandit> bandidos;
     std::vector<Cow> vacas;
     std::vector<Fence> cercas;
-    std::array<SDL_Texture*, NUMERO_BACKGROUNDS> bgs{};
+    std::array<SDL_Texture*, NUMERO_BACKGROUNDS> backgrounds{};
 
     int cameraX = 0;
-    bool running = true;
-    float banditSpawnTimer = 0.0f;
-    float banditSpawnInterval = 100.0f;
-    int nextBanditId = 0;
-    int score = 0;
+    bool rodando = true;
+    float temporizadorSpawnBandido = 0.0f;
+    float intervaloSpawnBandido = 100.0f;
+    int proxIdBandido = 0;
+    int pontuacao = 0;
 
     bool init();
     bool initSDL();

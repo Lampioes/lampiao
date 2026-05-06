@@ -12,7 +12,7 @@ int Game::run() {
         return -1;
     }
 
-    while (running) {
+    while (rodando) {
         handleEvents();
         update(1.0f / 60.0f);
         render();
@@ -32,8 +32,8 @@ bool Game::initSDL() {
         return false;
     }
 
-    const int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
-    if ((IMG_Init(imgFlags) & imgFlags) != imgFlags) {
+    const int flagsImagem = IMG_INIT_JPG | IMG_INIT_PNG;
+    if ((IMG_Init(flagsImagem) & flagsImagem) != flagsImagem) {
         SDL_Log("Erro ao iniciar SDL_image: %s", IMG_GetError());
         return false;
     }
@@ -76,13 +76,13 @@ bool Game::initAudio() {
 }
 
 bool Game::initPhysics() {
-    world = new b2World(b2Vec2(0.0f, GRAVIDADE));
-    world->SetContactListener(&contactListener);
+    mundo = new b2World(b2Vec2(0.0f, GRAVIDADE));
+    mundo->SetContactListener(&ouvinteContato);
     return true;
 }
 
 bool Game::loadAssets() {
-    static constexpr const char* BACKGROUND_PATHS[NUMERO_BACKGROUNDS] = {
+    static constexpr const char* CAMINHOS_FUNDO[NUMERO_BACKGROUNDS] = {
         "../sprites/montanhas.jpg",
         "../sprites/transicao-montanhas-deserto.jpg",
         "../sprites/calica-deserto.png",
@@ -90,65 +90,50 @@ bool Game::loadAssets() {
         "../sprites/calica-deserto.png",
     };
 
-    terreno = new Terrain(*world);
+    terreno = new Terrain(*mundo);
 
-    const float jogadorStartX = 300.0f;
-    const float jogadorStartY = terreno->getHeightAt(jogadorStartX) - 80.0f;
-    jogador = new Player(*world, renderizacao, jogadorStartX, jogadorStartY);
+    const float jogadorInicioX = 300.0f;
+    const float jogadorInicioY = terreno->getHeightAt(jogadorInicioX) - 80.0f;
+    jogador = new Player(*mundo, renderizacao, jogadorInicioX, jogadorInicioY);
 
     for (int i = 0; i < NUMERO_BACKGROUNDS; ++i) {
-        bgs[i] = IMG_LoadTexture(renderizacao, BACKGROUND_PATHS[i]);
-        if (!bgs[i]) {
-            SDL_Log("Erro ao carregar background %d: %s", i, IMG_GetError());
-            return false;
-        }
+        backgrounds[i] = IMG_LoadTexture(renderizacao, CAMINHOS_FUNDO[i]);
     }
 
-    bgMusic = Mix_LoadMUS("../audio/bg.ogg");
-    if (!bgMusic) {
-        SDL_Log("Erro ao carregar musica: %s", Mix_GetError());
-        return false;
-    }
-
-    jumpSound = Mix_LoadWAV("../audio/jump.wav");
-    if (!jumpSound) {
-        SDL_Log("Erro ao carregar efeito de pulo: %s", Mix_GetError());
-        return false;
-    }
+    musicaFundo = Mix_LoadMUS("../audio/bg.ogg");
+    somPulo = Mix_LoadWAV("../audio/jump.wav");
 
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
-    Mix_VolumeChunk(jumpSound, MIX_MAX_VOLUME / 2);
-
-    if (Mix_PlayMusic(bgMusic, -1) < 0) {
-        SDL_Log("Erro ao tocar musica: %s", Mix_GetError());
-        return false;
-    }
+    Mix_VolumeChunk(somPulo, MIX_MAX_VOLUME / 2);
 
     setupLevel();
     return true;
 }
 
 void Game::setupLevel() {
-    const float penY = terreno->getHeightAt(PEN_X) - 30.0f;
-    cercas.emplace_back(*world, PEN_X - 100.0f, penY, 10.0f, 60.0f);
-    cercas.emplace_back(*world, PEN_X + 100.0f, penY, 10.0f, 60.0f);
-    cercas.emplace_back(*world, PEN_X, penY - 30.0f, 210.0f, 10.0f);
+    const float currumbaY = terreno->getHeightAt(PEN_X) - 30.0f;
+    cercas.emplace_back(*mundo, PEN_X - 100.0f, currumbaY, 10.0f, 60.0f);
+    cercas.emplace_back(*mundo, PEN_X + 100.0f, currumbaY, 10.0f, 60.0f);
+    cercas.emplace_back(*mundo, PEN_X, currumbaY - 30.0f, 210.0f, 10.0f);
 
+    const float larguraCiclo = static_cast<float>(Terrain::NUM_ZONAS * Terrain::TELA_W);
+    const float espacoEntreVacas = larguraCiclo / NUMERO_VACAS;
     for (int i = 0; i < NUMERO_VACAS; ++i) {
-        const float cowX = PEN_X - 50.0f + static_cast<float>(i) * 50.0f;
-        const float cowY = terreno->getHeightAt(cowX) - 25.0f;
-        vacas.emplace_back(*world, cowX, cowY, i);
+        const float jitter = static_cast<float>((i * 137) % 200) - 100.0f;
+        const float vacaX = espacoEntreVacas * (i + 0.5f) + jitter;
+        const float vacaY = terreno->getHeightAt(vacaX) - 25.0f;
+        vacas.emplace_back(*mundo, vacaX, vacaY, i);
     }
 }
 
 void Game::handleEvents() {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
-            running = false;
+    SDL_Event evento;
+    while (SDL_PollEvent(&evento)) {
+        if (evento.type == SDL_QUIT) {
+            rodando = false;
         }
-        if (event.type == SDL_KEYDOWN) {
-            switch (event.key.keysym.sym) {
+        if (evento.type == SDL_KEYDOWN) {
+            switch (evento.key.keysym.sym) {
             case SDLK_RIGHT:
                 jogador->moveRight();
                 break;
@@ -164,12 +149,12 @@ void Game::handleEvents() {
                     float py = jogador->getBody()->GetPosition().y * P2M;
                     float dirX = jogador->getShootDirX();
                     float spawnX = px + dirX * 80.0f;
-                    balas.emplace_back(*world, spawnX, py, dirX, 0.0f, true, renderizacao);
+                    balas.emplace_back(*mundo, spawnX, py, dirX, 0.0f, true, renderizacao);
                     jogador->resetShootCooldown();
                 }
                 break;
             case SDLK_ESCAPE:
-                running = false;
+                rodando = false;
                 break;
             }
         }
@@ -177,12 +162,12 @@ void Game::handleEvents() {
 }
 
 void Game::update(float dt) {
-    if (!world || !jogador || !terreno) {
-        running = false;
+    if (!mundo || !jogador || !terreno) {
+        rodando = false;
         return;
     }
 
-    world->Step(dt, 6, 2);
+    mundo->Step(dt, 6, 2);
 
     jogador->update(dt);
     for (auto& bala : balas) {
@@ -190,21 +175,21 @@ void Game::update(float dt) {
     }
 
     const float jogadorPx = jogador->getBody()->GetPosition().x * P2M;
-    for (auto& bandit : bandidos) {
-        bandit.update(dt);
+    for (auto& bandido : bandidos) {
+        bandido.update(dt);
 
-        if (bandit.shouldShoot(dt, jogadorPx)) {
-            const float bx = bandit.getBody()->GetPosition().x * P2M;
-            const float by = bandit.getBody()->GetPosition().y * P2M;
-            const float dirX = bandit.getShootDirX(jogadorPx);
-            balas.emplace_back(*world, bx + dirX * 30.0f, by, dirX, 0.0f, false, renderizacao);
+        if (bandido.shouldShoot(dt, jogadorPx)) {
+            const float bx = bandido.getBody()->GetPosition().x * P2M;
+            const float by = bandido.getBody()->GetPosition().y * P2M;
+            const float dirX = bandido.getShootDirX(jogadorPx);
+            balas.emplace_back(*mundo, bx + dirX * 30.0f, by, dirX, 0.0f, false, renderizacao);
         }
     }
 
-    banditSpawnTimer += dt;
-    if (banditSpawnTimer >= banditSpawnInterval) {
+    temporizadorSpawnBandido += dt;
+    if (temporizadorSpawnBandido >= intervaloSpawnBandido) {
         spawnBandit();
-        banditSpawnTimer = 0.0f;
+        temporizadorSpawnBandido = 0.0f;
     }
 
     processCollisions();
@@ -212,7 +197,7 @@ void Game::update(float dt) {
     updateCamera();
 
     if (!jogador->isAlive()) {
-        running = false;
+        rodando = false;
     }
 }
 
@@ -223,28 +208,28 @@ void Game::updateCamera() {
 
 void Game::spawnBandit() {
     const float jogadorPx = jogador->getBody()->GetPosition().x * P2M;
-    const float side = (std::rand() % 2 == 0) ? 1.0f : -1.0f;
-    const float spawnX = jogadorPx + side * (TELA_WIDTH * 0.6f);
+    const float lado = (std::rand() % 2 == 0) ? 1.0f : -1.0f;
+    const float spawnX = jogadorPx + lado * (TELA_WIDTH * 0.6f);
     const float spawnY = terreno->getHeightAt(spawnX) - 50.0f;
 
-    bandidos.emplace_back(*world, renderizacao, spawnX, spawnY, nextBanditId++);
+    bandidos.emplace_back(*mundo, renderizacao, spawnX, spawnY, proxIdBandido++);
 }
 
 void Game::processCollisions() {
-    auto collisions = contactListener.getAndClearCollisions();
+    auto colisoes = ouvinteContato.getAndClearCollisions();
 
-    for (auto& col : collisions) {
+    for (auto& col : colisoes) {
         EntityData* a = col.a;
         EntityData* b = col.b;
         if (!a || !b) {
             continue;
         }
 
-        if (a->type > b->type) {
+        if (a->tipo > b->tipo) {
             std::swap(a, b);
         }
 
-        if (a->type == EntityType::BULLET_PLAYER && b->type == EntityType::BANDIT) {
+        if (a->tipo == EntityType::BULLET_PLAYER && b->tipo == EntityType::BANDIT) {
             for (auto& bala : balas) {
                 if (bala.isFromPlayer() && bala.isAlive()) {
                     bala.kill();
@@ -252,18 +237,18 @@ void Game::processCollisions() {
                 }
             }
 
-            for (auto& bandit : bandidos) {
-                if (bandit.getId() == b->id && bandit.isAlive()) {
-                    bandit.takeDamage();
-                    if (!bandit.isAlive()) {
-                        score += 100;
+            for (auto& bandido : bandidos) {
+                if (bandido.getId() == b->id && bandido.isAlive()) {
+                    bandido.takeDamage();
+                    if (!bandido.isAlive()) {
+                        pontuacao += 100;
                     }
                     break;
                 }
             }
         }
 
-        if (a->type == EntityType::PLAYER && b->type == EntityType::BULLET_BANDIT) {
+        if (a->tipo == EntityType::PLAYER && b->tipo == EntityType::BULLET_BANDIT) {
             jogador->takeDamage();
             for (auto& bala : balas) {
                 if (!bala.isFromPlayer() && bala.isAlive()) {
@@ -273,10 +258,10 @@ void Game::processCollisions() {
             }
         }
 
-        if (a->type == EntityType::PLAYER && b->type == EntityType::TERRAIN) jogador->setOnGround(true);
+        if (a->tipo == EntityType::PLAYER && b->tipo == EntityType::TERRAIN) jogador->setOnGround(true);
 
-        if (b->type == EntityType::TERRAIN &&
-            (a->type == EntityType::BULLET_PLAYER || a->type == EntityType::BULLET_BANDIT)) {
+        if (b->tipo == EntityType::TERRAIN &&
+            (a->tipo == EntityType::BULLET_PLAYER || a->tipo == EntityType::BULLET_BANDIT)) {
             for (auto& bala : balas) {
                 if (bala.isAlive()) {
                     bala.kill();
@@ -290,14 +275,14 @@ void Game::processCollisions() {
 void Game::cleanupDead() {
     for (auto it = balas.begin(); it != balas.end();) {
         if (!it->isAlive()) {
-            it->destroyBody(*world);
+            it->destroyBody(*mundo);
             it = balas.erase(it);
         } else ++it;
     }
 
     for (auto it = bandidos.begin(); it != bandidos.end();) {
         if (!it->isAlive()) {
-            it->destroyBody(*world);
+            it->destroyBody(*mundo);
             it = bandidos.erase(it);
         } else {
             ++it;
@@ -318,8 +303,8 @@ void Game::render() {
     for (auto& vaca : vacas) {
         vaca.draw(renderizacao, cameraX);
     }
-    for (auto& bandit : bandidos) {
-        bandit.draw(renderizacao, cameraX);
+    for (auto& bandido : bandidos) {
+        bandido.draw(renderizacao, cameraX);
     }
     for (auto& bala : balas) {
         bala.draw(renderizacao, cameraX);
@@ -332,19 +317,17 @@ void Game::render() {
 }
 
 void Game::renderBackgrounds() {
-    const int startZone = static_cast<int>(std::floor(static_cast<float>(cameraX) / TELA_WIDTH));
+    const int zonaInicial = static_cast<int>(std::floor(static_cast<float>(cameraX) / TELA_WIDTH));
 
-    for (int z = startZone; z <= startZone + 2; ++z) {
-        const int screenX = z * TELA_WIDTH - cameraX;
-        if (screenX + TELA_WIDTH < 0 || screenX > TELA_WIDTH) {
-            continue;
-        }
+    for (int z = zonaInicial; z <= zonaInicial + 2; ++z) {
+        const int telaX = z * TELA_WIDTH - cameraX;
+        if (telaX + TELA_WIDTH < 0 || telaX > TELA_WIDTH) continue; 
 
-        const int bgIndex = ((z % NUMERO_BACKGROUNDS) + NUMERO_BACKGROUNDS) % NUMERO_BACKGROUNDS;
-        SDL_Rect dst = {screenX, 0, TELA_WIDTH, TELA_ALTURA};
+        const int indiceFundo = ((z % NUMERO_BACKGROUNDS) + NUMERO_BACKGROUNDS) % NUMERO_BACKGROUNDS;
+        SDL_Rect destino = {telaX, 0, TELA_WIDTH, TELA_ALTURA};
 
-        if (bgs[bgIndex]) {
-            SDL_RenderCopy(renderizacao, bgs[bgIndex], nullptr, &dst);
+        if (backgrounds[indiceFundo]) {
+            SDL_RenderCopy(renderizacao, backgrounds[indiceFundo], nullptr, &destino);
         }
     }
 }
@@ -352,29 +335,29 @@ void Game::renderBackgrounds() {
 void Game::renderHUD() {
     SDL_SetRenderDrawColor(renderizacao, 220, 30, 30, 255);
     for (int i = 0; i < jogador->getHealth(); ++i) {
-        SDL_Rect heart = {20 + i * 30, 20, 24, 24};
-        SDL_RenderFillRect(renderizacao, &heart);
+        SDL_Rect coracao = {20 + i * 30, 20, 24, 24};
+        SDL_RenderFillRect(renderizacao, &coracao);
     }
 
     SDL_SetRenderDrawColor(renderizacao, 255, 215, 0, 255);
-    const int scoreBarW = std::min(score, 500);
-    SDL_Rect scoreBar = {20, 55, scoreBarW, 10};
-    SDL_RenderFillRect(renderizacao, &scoreBar);
+    const int larguraBarraPontuacao = std::min(pontuacao, 500);
+    SDL_Rect barraPontuacao = {20, 55, larguraBarraPontuacao, 10};
+    SDL_RenderFillRect(renderizacao, &barraPontuacao);
 }
 
 void Game::cleanup() {
-    if (world) {
+    if (mundo) {
         for (auto& bala : balas) {
-            bala.destroyBody(*world);
+            bala.destroyBody(*mundo);
         }
-        for (auto& bandit : bandidos) {
-            bandit.destroyBody(*world);
+        for (auto& bandido : bandidos) {
+            bandido.destroyBody(*mundo);
         }
         for (auto& vaca : vacas) {
-            vaca.destroyBody(*world);
+            vaca.destroyBody(*mundo);
         }
         for (auto& cerca : cercas) {
-            cerca.destroyBody(*world);
+            cerca.destroyBody(*mundo);
         }
     }
 
@@ -383,7 +366,7 @@ void Game::cleanup() {
     vacas.clear();
     cercas.clear();
 
-    for (auto& bg : bgs) {
+    for (auto& bg : backgrounds) {
         if (bg) {
             SDL_DestroyTexture(bg);
             bg = nullptr;
@@ -396,17 +379,17 @@ void Game::cleanup() {
     delete terreno;
     terreno = nullptr;
 
-    delete world;
-    world = nullptr;
+    delete mundo;
+    mundo = nullptr;
 
-    if (jumpSound) {
-        Mix_FreeChunk(jumpSound);
-        jumpSound = nullptr;
+    if (somPulo) {
+        Mix_FreeChunk(somPulo);
+        somPulo = nullptr;
     }
 
-    if (bgMusic) {
-        Mix_FreeMusic(bgMusic);
-        bgMusic = nullptr;
+    if (musicaFundo) {
+        Mix_FreeMusic(musicaFundo);
+        musicaFundo = nullptr;
     }
 
     Mix_CloseAudio();

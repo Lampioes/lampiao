@@ -6,8 +6,8 @@
 #include <list>
 
 struct RopeSegment {
-    b2Body* body = nullptr;
-    b2Joint* joint = nullptr; 
+    b2Body* corpo = nullptr;
+    b2Joint* juncao = nullptr;
 };
 
 class Rope {
@@ -19,24 +19,24 @@ public:
     void retract(b2World& world);
     void update(float dt);
     void draw(SDL_Renderer* renderer, int cameraX);
-    bool isActive() const { return active; }
+    bool isActive() const { return ativa; }
 
     b2Body* getTipBody() const;
 
-    void attachTo(b2World& world, b2Body* target);
-    bool isAttached() const { return attached; }
+    void attachTo(b2World& world, b2Body* alvo);
+    bool isAttached() const { return presa; }
 
 private:
-    std::list<RopeSegment> segments;
-    bool active = false;
-    bool attached = false;
-    float lifetime = 0.0f;
+    std::list<RopeSegment> segmentos;
+    bool ativa = false;
+    bool presa = false;
+    float tempoVida = 0.0f;
 
     static constexpr float P2M = 30.0f;
-    static constexpr int NUM_SEGMENTS = 8;
-    static constexpr float SEGMENT_LENGTH = 0.5f; 
-    static constexpr float MAX_LIFETIME = 2.0f;
-    static constexpr float LAUNCH_SPEED = 10.0f;
+    static constexpr int NUM_SEGMENTOS = 8;
+    static constexpr float COMPRIMENTO_SEGMENTO = 0.5f;
+    static constexpr float TEMPO_MAX_VIDA = 2.0f;
+    static constexpr float VELOCIDADE_LANCAMENTO = 10.0f;
 };
 
 #endif

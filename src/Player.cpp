@@ -4,139 +4,139 @@
 #include <cmath>
 
 Player::Player(b2World& world, SDL_Renderer* renderer, float x, float y) {
-    b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
-    bodyDef.position.Set(x / P2M, y / P2M);
-    bodyDef.fixedRotation = true;
-    body = world.CreateBody(&bodyDef);
+    b2BodyDef defCorpo;
+    defCorpo.type = b2_dynamicBody;
+    defCorpo.position.Set(x / P2M, y / P2M);
+    defCorpo.fixedRotation = true;
+    corpo = world.CreateBody(&defCorpo);
 
-    b2PolygonShape shape;
-    shape.SetAsBox(1.0f, 1.0f);
+    b2PolygonShape forma;
+    forma.SetAsBox(1.0f, 1.0f);
 
-    b2FixtureDef fixtureDef;
-    fixtureDef.shape = &shape;
-    fixtureDef.density = 1.0f;
-    fixtureDef.friction = 0.3f;
+    b2FixtureDef defFixacao;
+    defFixacao.shape = &forma;
+    defFixacao.density = 1.0f;
+    defFixacao.friction = 0.3f;
 
-    EntityData* data = new EntityData{EntityType::PLAYER, 0};
-    fixtureDef.userData.pointer = reinterpret_cast<uintptr_t>(data);
+    EntityData* dados = new EntityData{EntityType::PLAYER, 0};
+    defFixacao.userData.pointer = reinterpret_cast<uintptr_t>(dados);
 
-    body->CreateFixture(&fixtureDef);
+    corpo->CreateFixture(&defFixacao);
 
-    textures.push_back(IMG_LoadTexture(renderer, "../sprites/run-1.png"));
-    textures.push_back(IMG_LoadTexture(renderer, "../sprites/run-2-e-parado.png"));
-    textures.push_back(IMG_LoadTexture(renderer, "../sprites/run-3.png"));
+    texturas.push_back(IMG_LoadTexture(renderer, "../sprites/run-1.png"));
+    texturas.push_back(IMG_LoadTexture(renderer, "../sprites/run-2-e-parado.png"));
+    texturas.push_back(IMG_LoadTexture(renderer, "../sprites/run-3.png"));
 }
 
 void Player::moveRight() {
-    if (isMoving) return;
-    float currentX = body->GetPosition().x;
-    targetX = std::min(currentX + MOVE_DISTANCE, MAX_X);
-    isMoving = true;
-    facingLeft = false;
+    if (emMovimento) return;
+    float xAtual = corpo->GetPosition().x;
+    alvoX = std::min(xAtual + DISTANCIA_MOVIMENTO, MAX_X);
+    emMovimento = true;
+    viradoEsquerda = false;
 }
 
 void Player::moveLeft() {
-    if (isMoving) return;
-    float currentX = body->GetPosition().x;
-    targetX = std::max(currentX - MOVE_DISTANCE, MIN_X);
-    isMoving = true;
-    facingLeft = true;
+    if (emMovimento) return;
+    float xAtual = corpo->GetPosition().x;
+    alvoX = std::max(xAtual - DISTANCIA_MOVIMENTO, MIN_X);
+    emMovimento = true;
+    viradoEsquerda = true;
 }
 
 void Player::jump() {
-    if (!onGround) return;
-    body->ApplyLinearImpulseToCenter(b2Vec2(0, JUMP_IMPULSE), true);
-    onGround = false;
+    if (!noChao) return;
+    corpo->ApplyLinearImpulseToCenter(b2Vec2(0, IMPULSO_PULO), true);
+    noChao = false;
 }
 
 void Player::takeDamage() {
-    health--;
+    vida--;
 }
 
 void Player::clampPosition() {
-    b2Vec2 pos = body->GetPosition();
-    if (pos.x < MIN_X) {
-        body->SetTransform(b2Vec2(MIN_X, pos.y), 0);
-        body->SetLinearVelocity(b2Vec2(0, body->GetLinearVelocity().y));
-        isMoving = false;
-    } else if (pos.x > MAX_X) {
-        body->SetTransform(b2Vec2(MAX_X, pos.y), 0);
-        body->SetLinearVelocity(b2Vec2(0, body->GetLinearVelocity().y));
-        isMoving = false;
+    b2Vec2 posicao = corpo->GetPosition();
+    if (posicao.x < MIN_X) {
+        corpo->SetTransform(b2Vec2(MIN_X, posicao.y), 0);
+        corpo->SetLinearVelocity(b2Vec2(0, corpo->GetLinearVelocity().y));
+        emMovimento = false;
+    } else if (posicao.x > MAX_X) {
+        corpo->SetTransform(b2Vec2(MAX_X, posicao.y), 0);
+        corpo->SetLinearVelocity(b2Vec2(0, corpo->GetLinearVelocity().y));
+        emMovimento = false;
     }
 }
 
 void Player::update(float dt) {
-    
-    if (shootCooldown > 0.0f) {
-        shootCooldown -= dt;
+
+    if (recargaTiro > 0.0f) {
+        recargaTiro -= dt;
     }
 
-    if (isMoving) {
-        float currentX = body->GetPosition().x;
-        float diff = targetX - currentX;
+    if (emMovimento) {
+        float xAtual = corpo->GetPosition().x;
+        float diferenca = alvoX - xAtual;
 
-        if (std::abs(diff) < 0.15f) {
-            body->SetTransform(b2Vec2(targetX, body->GetPosition().y), 0);
-            body->SetLinearVelocity(b2Vec2(0, body->GetLinearVelocity().y));
-            isMoving = false;
-            stuckFrames = 0;
+        if (std::abs(diferenca) < 0.15f) {
+            corpo->SetTransform(b2Vec2(alvoX, corpo->GetPosition().y), 0);
+            corpo->SetLinearVelocity(b2Vec2(0, corpo->GetLinearVelocity().y));
+            emMovimento = false;
+            framesPreso = 0;
         } else {
-            if (std::abs(currentX - lastX) < 0.001f) {
-                stuckFrames++;
-                if (stuckFrames > 3) {
-                    isMoving = false;
-                    stuckFrames = 0;
-                    body->SetLinearVelocity(b2Vec2(0, body->GetLinearVelocity().y));
+            if (std::abs(xAtual - ultimoX) < 0.001f) {
+                framesPreso++;
+                if (framesPreso > 3) {
+                    emMovimento = false;
+                    framesPreso = 0;
+                    corpo->SetLinearVelocity(b2Vec2(0, corpo->GetLinearVelocity().y));
                 }
             } else {
-                stuckFrames = 0;
+                framesPreso = 0;
             }
 
-            float direcao = (diff > 0) ? 1.0f : -1.0f;
-            body->SetLinearVelocity(b2Vec2(direcao * velocidadeMovimento, body->GetLinearVelocity().y));
+            float direcao = (diferenca > 0) ? 1.0f : -1.0f;
+            corpo->SetLinearVelocity(b2Vec2(direcao * velocidadeMovimento, corpo->GetLinearVelocity().y));
         }
-        lastX = currentX;
+        ultimoX = xAtual;
     }
 
     clampPosition();
 
-    b2Vec2 velocity = body->GetLinearVelocity();
-    if (std::abs(velocity.x) > 0.1f) {
-        currentFrame = (SDL_GetTicks() / 500) % 3;
+    b2Vec2 velocidade = corpo->GetLinearVelocity();
+    if (std::abs(velocidade.x) > 0.1f) {
+        frameAtual = (SDL_GetTicks() / 500) % 3;
     } else {
-        currentFrame = 1;
+        frameAtual = 1;
     }
 }
 
 void Player::draw(SDL_Renderer* renderer, int cameraX) {
-    renderRect.x = (int)(body->GetPosition().x * P2M) - 75 - cameraX;
-    renderRect.y = (int)(body->GetPosition().y * P2M) - 75;
-    renderRect.w = 150;
-    renderRect.h = 150;
+    retanguloRender.x = (int)(corpo->GetPosition().x * P2M) - 75 - cameraX;
+    retanguloRender.y = (int)(corpo->GetPosition().y * P2M) - 75;
+    retanguloRender.w = 150;
+    retanguloRender.h = 150;
 
-    SDL_RendererFlip flip = facingLeft ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    SDL_RendererFlip flip = viradoEsquerda ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-    
-    if (!textures.empty() && textures[currentFrame]) {
-        SDL_RenderCopyEx(renderer, textures[currentFrame], NULL, &renderRect, 0.0, NULL, flip);
+
+    if (!texturas.empty() && texturas[frameAtual]) {
+        SDL_RenderCopyEx(renderer, texturas[frameAtual], NULL, &retanguloRender, 0.0, NULL, flip);
     } else {
-        
-        SDL_SetRenderDrawColor(renderer, 50, 130, 50, 255);
-        SDL_Rect body_rect = {renderRect.x + 30, renderRect.y + 20, 90, 110};
-        SDL_RenderFillRect(renderer, &body_rect);
 
-        
+        SDL_SetRenderDrawColor(renderer, 50, 130, 50, 255);
+        SDL_Rect retanguloCorpo = {retanguloRender.x + 30, retanguloRender.y + 20, 90, 110};
+        SDL_RenderFillRect(renderer, &retanguloCorpo);
+
+
         SDL_SetRenderDrawColor(renderer, 139, 90, 43, 255);
-        SDL_Rect hat = {renderRect.x + 20, renderRect.y, 110, 25};
-        SDL_RenderFillRect(renderer, &hat);
+        SDL_Rect chapeu = {retanguloRender.x + 20, retanguloRender.y, 110, 25};
+        SDL_RenderFillRect(renderer, &chapeu);
     }
 
-    
+
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    for (int i = 0; i < health; ++i) {
-        SDL_Rect heart = {renderRect.x + i * 14, renderRect.y - 20, 12, 12};
-        SDL_RenderFillRect(renderer, &heart);
+    for (int i = 0; i < vida; ++i) {
+        SDL_Rect coracao = {retanguloRender.x + i * 14, retanguloRender.y - 20, 12, 12};
+        SDL_RenderFillRect(renderer, &coracao);
     }
 }

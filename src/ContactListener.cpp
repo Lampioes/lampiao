@@ -9,14 +9,14 @@ void GameContactListener::BeginContact(b2Contact* contact) {
 
     if (!ptrA || !ptrB) return;
 
-    EntityData* dataA = reinterpret_cast<EntityData*>(ptrA);
-    EntityData* dataB = reinterpret_cast<EntityData*>(ptrB);
+    EntityData* dadosA = reinterpret_cast<EntityData*>(ptrA);
+    EntityData* dadosB = reinterpret_cast<EntityData*>(ptrB);
 
-    pendingCollisions.push_back({dataA, dataB});
+    colisoesPendentes.push_back({dadosA, dadosB});
 }
 
 std::vector<CollisionPair> GameContactListener::getAndClearCollisions() {
-    std::vector<CollisionPair> result = std::move(pendingCollisions);
-    pendingCollisions.clear();
-    return result;
+    std::vector<CollisionPair> resultado = std::move(colisoesPendentes);
+    colisoesPendentes.clear();
+    return resultado;
 }

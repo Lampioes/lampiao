@@ -10,18 +10,18 @@ public:
     ~Cow() = default;
 
     void draw(SDL_Renderer* renderer, int cameraX);
-    b2Body* getBody() const { return body; }
-    int getId() const { return cowId; }
+    b2Body* getBody() const { return corpo; }
+    int getId() const { return idVaca; }
 
     void destroyBody(b2World& world);
 
 private:
-    b2Body* body = nullptr;
-    int cowId;
+    b2Body* corpo = nullptr;
+    int idVaca;
 
     static constexpr float P2M = 30.0f;
-    static constexpr int WIDTH = 60;
-    static constexpr int HEIGHT = 40;
+    static constexpr int LARGURA = 60;
+    static constexpr int ALTURA = 40;
 };
 
 #endif

@@ -3,76 +3,76 @@
 #include <cmath>
 
 void Rope::launch(b2World& world, float startX, float startY, float dirX, float dirY) {
-    if (active) return;
+    if (ativa) return;
 
     // Normaliza direção
-    float len = std::sqrt(dirX * dirX + dirY * dirY);
-    if (len < 0.001f) return;
-    dirX /= len;
-    dirY /= len;
+    float comprimento = std::sqrt(dirX * dirX + dirY * dirY);
+    if (comprimento < 0.001f) return;
+    dirX /= comprimento;
+    dirY /= comprimento;
 
-    active = true;
-    attached = false;
-    lifetime = 0.0f;
+    ativa = true;
+    presa = false;
+    tempoVida = 0.0f;
 
-    b2Body* prevBody = nullptr;
+    b2Body* corpoAnterior = nullptr;
 
-    for (int i = 0; i < NUM_SEGMENTS; ++i) {
+    for (int i = 0; i < NUM_SEGMENTOS; ++i) {
         RopeSegment seg;
 
-        float sx = startX / 30.0f + dirX * i * SEGMENT_LENGTH;
-        float sy = startY / 30.0f + dirY * i * SEGMENT_LENGTH;
+        float sx = startX / 30.0f + dirX * i * COMPRIMENTO_SEGMENTO;
+        float sy = startY / 30.0f + dirY * i * COMPRIMENTO_SEGMENTO;
 
-        b2BodyDef bodyDef;
-        bodyDef.type = b2_dynamicBody;
-        bodyDef.position.Set(sx, sy);
-        bodyDef.linearDamping = 0.5f;
-        seg.body = world.CreateBody(&bodyDef);
+        b2BodyDef defCorpo;
+        defCorpo.type = b2_dynamicBody;
+        defCorpo.position.Set(sx, sy);
+        defCorpo.linearDamping = 0.5f;
+        seg.corpo = world.CreateBody(&defCorpo);
 
-        b2CircleShape shape;
-        shape.m_radius = 0.05f;
+        b2CircleShape forma;
+        forma.m_radius = 0.05f;
 
-        b2FixtureDef fixDef;
-        fixDef.shape = &shape;
-        fixDef.density = 0.5f;
-        fixDef.friction = 0.3f;
+        b2FixtureDef defFixacao;
+        defFixacao.shape = &forma;
+        defFixacao.density = 0.5f;
+        defFixacao.friction = 0.3f;
 
         // Só o último segmento (ponta) é sensor para detectar vaca
-        if (i == NUM_SEGMENTS - 1) {
-            fixDef.isSensor = true;
-            EntityData* data = new EntityData{EntityType::ROPE_TIP, 0};
-            fixDef.userData.pointer = reinterpret_cast<uintptr_t>(data);
+        if (i == NUM_SEGMENTOS - 1) {
+            defFixacao.isSensor = true;
+            EntityData* dados = new EntityData{EntityType::ROPE_TIP, 0};
+            defFixacao.userData.pointer = reinterpret_cast<uintptr_t>(dados);
         }
 
-        seg.body->CreateFixture(&fixDef);
+        seg.corpo->CreateFixture(&defFixacao);
 
         // Dá velocidade inicial na direção do lançamento
-        seg.body->SetLinearVelocity(b2Vec2(dirX * LAUNCH_SPEED, dirY * LAUNCH_SPEED));
+        seg.corpo->SetLinearVelocity(b2Vec2(dirX * VELOCIDADE_LANCAMENTO, dirY * VELOCIDADE_LANCAMENTO));
 
-        // Cria joint com o segmento anterior
-        if (prevBody) {
-            b2RevoluteJointDef jointDef;
-            jointDef.Initialize(prevBody, seg.body,
-                                b2Vec2(sx - dirX * SEGMENT_LENGTH * 0.5f,
-                                        sy - dirY * SEGMENT_LENGTH * 0.5f));
-            jointDef.collideConnected = false;
-            seg.joint = world.CreateJoint(&jointDef);
+        // Cria juncao com o segmento anterior
+        if (corpoAnterior) {
+            b2RevoluteJointDef defJuncao;
+            defJuncao.Initialize(corpoAnterior, seg.corpo,
+                                b2Vec2(sx - dirX * COMPRIMENTO_SEGMENTO * 0.5f,
+                                        sy - dirY * COMPRIMENTO_SEGMENTO * 0.5f));
+            defJuncao.collideConnected = false;
+            seg.juncao = world.CreateJoint(&defJuncao);
         }
 
-        segments.push_back(seg);
-        prevBody = seg.body;
+        segmentos.push_back(seg);
+        corpoAnterior = seg.corpo;
     }
 }
 
 void Rope::retract(b2World& world) {
-    for (auto& seg : segments) {
-        if (seg.joint) {
-            world.DestroyJoint(seg.joint);
-            seg.joint = nullptr;
+    for (auto& seg : segmentos) {
+        if (seg.juncao) {
+            world.DestroyJoint(seg.juncao);
+            seg.juncao = nullptr;
         }
-        if (seg.body) {
+        if (seg.corpo) {
             // Limpa userData se existir
-            b2Fixture* f = seg.body->GetFixtureList();
+            b2Fixture* f = seg.corpo->GetFixtureList();
             while (f) {
                 auto ptr = f->GetUserData().pointer;
                 if (ptr) {
@@ -80,75 +80,75 @@ void Rope::retract(b2World& world) {
                 }
                 f = f->GetNext();
             }
-            world.DestroyBody(seg.body);
-            seg.body = nullptr;
+            world.DestroyBody(seg.corpo);
+            seg.corpo = nullptr;
         }
     }
-    segments.clear();
-    active = false;
-    attached = false;
+    segmentos.clear();
+    ativa = false;
+    presa = false;
 }
 
 void Rope::update(float dt) {
-    if (!active) return;
+    if (!ativa) return;
 
-    lifetime += dt;
-    if (lifetime >= MAX_LIFETIME && !attached) {
+    tempoVida += dt;
+    if (tempoVida >= TEMPO_MAX_VIDA && !presa) {
         // Será retraída pelo Game no próximo frame
-        active = false;
+        ativa = false;
     }
 }
 
 void Rope::draw(SDL_Renderer* renderer, int cameraX) {
-    if (!active || segments.empty()) return;
+    if (!ativa || segmentos.empty()) return;
 
     SDL_SetRenderDrawColor(renderer, 180, 140, 80, 255); // cor de corda
 
-    b2Body* prev = nullptr;
-    for (auto& seg : segments) {
-        if (!seg.body) continue;
-        if (prev) {
-            int x1 = static_cast<int>(prev->GetPosition().x * 30.0f) - cameraX;
-            int y1 = static_cast<int>(prev->GetPosition().y * 30.0f);
-            int x2 = static_cast<int>(seg.body->GetPosition().x * 30.0f) - cameraX;
-            int y2 = static_cast<int>(seg.body->GetPosition().y * 30.0f);
+    b2Body* anterior = nullptr;
+    for (auto& seg : segmentos) {
+        if (!seg.corpo) continue;
+        if (anterior) {
+            int x1 = static_cast<int>(anterior->GetPosition().x * 30.0f) - cameraX;
+            int y1 = static_cast<int>(anterior->GetPosition().y * 30.0f);
+            int x2 = static_cast<int>(seg.corpo->GetPosition().x * 30.0f) - cameraX;
+            int y2 = static_cast<int>(seg.corpo->GetPosition().y * 30.0f);
 
             // Desenha linha grossa (3 linhas paralelas)
-            for (int offset = -1; offset <= 1; ++offset) {
-                SDL_RenderDrawLine(renderer, x1, y1 + offset, x2, y2 + offset);
+            for (int deslocamento = -1; deslocamento <= 1; ++deslocamento) {
+                SDL_RenderDrawLine(renderer, x1, y1 + deslocamento, x2, y2 + deslocamento);
             }
         }
-        prev = seg.body;
+        anterior = seg.corpo;
     }
 
     // Desenha a ponta como um laço (círculo)
-    if (!segments.empty()) {
-        auto& tip = segments.back();
-        if (tip.body) {
-            int tx = static_cast<int>(tip.body->GetPosition().x * 30.0f) - cameraX;
-            int ty = static_cast<int>(tip.body->GetPosition().y * 30.0f);
+    if (!segmentos.empty()) {
+        auto& ponta = segmentos.back();
+        if (ponta.corpo) {
+            int tx = static_cast<int>(ponta.corpo->GetPosition().x * 30.0f) - cameraX;
+            int ty = static_cast<int>(ponta.corpo->GetPosition().y * 30.0f);
             SDL_SetRenderDrawColor(renderer, 200, 160, 90, 255);
-            SDL_Rect loop = {tx - 8, ty - 8, 16, 16};
-            SDL_RenderDrawRect(renderer, &loop);
+            SDL_Rect laco = {tx - 8, ty - 8, 16, 16};
+            SDL_RenderDrawRect(renderer, &laco);
         }
     }
 }
 
 b2Body* Rope::getTipBody() const {
-    if (segments.empty()) return nullptr;
-    return segments.back().body;
+    if (segmentos.empty()) return nullptr;
+    return segmentos.back().corpo;
 }
 
-void Rope::attachTo(b2World& world, b2Body* target) {
-    if (segments.empty() || !target) return;
+void Rope::attachTo(b2World& world, b2Body* alvo) {
+    if (segmentos.empty() || !alvo) return;
 
-    b2Body* tipBody = segments.back().body;
-    if (!tipBody) return;
+    b2Body* corpoPonta = segmentos.back().corpo;
+    if (!corpoPonta) return;
 
-    b2RevoluteJointDef jointDef;
-    jointDef.Initialize(tipBody, target, target->GetPosition());
-    jointDef.collideConnected = false;
-    world.CreateJoint(&jointDef);
+    b2RevoluteJointDef defJuncao;
+    defJuncao.Initialize(corpoPonta, alvo, alvo->GetPosition());
+    defJuncao.collideConnected = false;
+    world.CreateJoint(&defJuncao);
 
-    attached = true;
+    presa = true;
 }

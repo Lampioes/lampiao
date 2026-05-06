@@ -17,7 +17,7 @@ enum class EntityType {
 };
 
 struct EntityData {
-    EntityType type;
+    EntityType tipo;
     int id;
 };
 
@@ -33,7 +33,7 @@ public:
     std::vector<CollisionPair> getAndClearCollisions();
 
 private:
-    std::vector<CollisionPair> pendingCollisions;
+    std::vector<CollisionPair> colisoesPendentes;
 };
 
 #endif
