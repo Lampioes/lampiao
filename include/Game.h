@@ -14,7 +14,6 @@
 #include "Cow.h"
 #include "Fence.h"
 #include "Player.h"
-#include "Rope.h"
 #include "Terrain.h"
 
 class Game {

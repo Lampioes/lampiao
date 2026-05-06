@@ -202,7 +202,7 @@ void Game::update(float dt) {
     for (auto& bandit : bandidos) {
         bandit.update(dt);
 
-        if (bandit.shouldShoot(dt)) {
+        if (bandit.shouldShoot(dt, playerPx)) {
             const float bx = bandit.getBody()->GetPosition().x * P2M;
             const float by = bandit.getBody()->GetPosition().y * P2M;
             const float dirX = bandit.getShootDirX(playerPx);
@@ -303,9 +303,7 @@ void Game::cleanupDead() {
         if (!it->isAlive()) {
             it->destroyBody(*world);
             it = balas.erase(it);
-        } else {
-            ++it;
-        }
+        } else ++it;
     }
 
     for (auto it = bandidos.begin(); it != bandidos.end();) {

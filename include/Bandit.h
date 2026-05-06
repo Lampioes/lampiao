@@ -18,7 +18,6 @@ public:
     b2Body* getBody() const { return body; }
     int getId() const { return banditId; }
 
-    bool shouldShoot(float dt);
     float getShootDirX(float playerX);
 
     void destroyBody(b2World& world);

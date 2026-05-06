@@ -97,16 +97,6 @@ void Bandit::draw(SDL_Renderer* renderer, int cameraX) {
     }
 }
 
-bool Bandit::shouldShoot(float dt) {
-    if (!alive) return false;
-    shootTimer += dt;
-    if (shootTimer >= shootCooldown) {
-        shootTimer = 0.0f;
-        return true;
-    }
-    return false;
-}
-
 float Bandit::getShootDirX(float playerX) {
     if (!body) return 1.0f;
     float myX = body->GetPosition().x * P2M;

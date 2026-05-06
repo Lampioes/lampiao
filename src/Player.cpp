@@ -83,7 +83,6 @@ void Player::update(float dt) {
             isMoving = false;
             stuckFrames = 0;
         } else {
-            // Detecta se está travado (colidindo com cerca/parede)
             if (std::abs(currentX - lastX) < 0.001f) {
                 stuckFrames++;
                 if (stuckFrames > 3) {
@@ -95,10 +94,8 @@ void Player::update(float dt) {
                 stuckFrames = 0;
             }
 
-            if (isMoving) {
-                float dir = (diff > 0) ? 1.0f : -1.0f;
-                body->SetLinearVelocity(b2Vec2(dir * moveSpeed, body->GetLinearVelocity().y));
-            }
+            float direcao = (diff > 0) ? 1.0f : -1.0f;
+            body->SetLinearVelocity(b2Vec2(direcao * velocidadeMovimento, body->GetLinearVelocity().y));
         }
         lastX = currentX;
     }

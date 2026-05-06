@@ -15,7 +15,7 @@ private:
     bool facingLeft = false;
     bool isMoving = false;
     float targetX = 0.0f;
-    float moveSpeed = 0.25f;
+    float velocidadeMovimento = 0.25f;
     float lastX = 0.0f;
     int stuckFrames = 0;
     int health = 5;
