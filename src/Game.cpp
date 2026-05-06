@@ -92,9 +92,9 @@ bool Game::loadAssets() {
 
     terreno = new Terrain(*world);
 
-    const float playerStartX = 300.0f;
-    const float playerStartY = terreno->getHeightAt(playerStartX) - 80.0f;
-    jogador = new Player(*world, renderizacao, playerStartX, playerStartY);
+    const float jogadorStartX = 300.0f;
+    const float jogadorStartY = terreno->getHeightAt(jogadorStartX) - 80.0f;
+    jogador = new Player(*world, renderizacao, jogadorStartX, jogadorStartY);
 
     for (int i = 0; i < NUMERO_BACKGROUNDS; ++i) {
         bgs[i] = IMG_LoadTexture(renderizacao, BACKGROUND_PATHS[i]);
@@ -146,41 +146,32 @@ void Game::handleEvents() {
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             running = false;
-            continue;
         }
-
-        if (event.type != SDL_KEYDOWN) {
-            continue;
-        }
-
-        switch (event.key.keysym.sym) {
-        case SDLK_RIGHT:
-            jogador->moveRight();
-            break;
-        case SDLK_LEFT:
-            jogador->moveLeft();
-            break;
-        case SDLK_SPACE:
-            jogador->jump();
-            if (jumpSound) {
-                Mix_PlayChannel(-1, jumpSound, 0);
+        if (event.type == SDL_KEYDOWN) {
+            switch (event.key.keysym.sym) {
+            case SDLK_RIGHT:
+                jogador->moveRight();
+                break;
+            case SDLK_LEFT:
+                jogador->moveLeft();
+                break;
+            case SDLK_SPACE:
+                jogador->jump();
+                break;
+            case SDLK_z:
+                if (jogador->canShoot()) {
+                    float px = jogador->getBody()->GetPosition().x * P2M;
+                    float py = jogador->getBody()->GetPosition().y * P2M;
+                    float dirX = jogador->getShootDirX();
+                    float spawnX = px + dirX * 80.0f;
+                    balas.emplace_back(*world, spawnX, py, dirX, 0.0f, true, renderizacao);
+                    jogador->resetShootCooldown();
+                }
+                break;
+            case SDLK_ESCAPE:
+                running = false;
+                break;
             }
-            break;
-        case SDLK_z:
-            if (jogador->canShoot()) {
-                const float px = jogador->getBody()->GetPosition().x * P2M;
-                const float py = jogador->getBody()->GetPosition().y * P2M;
-                const float dirX = jogador->getShootDirX();
-                const float spawnX = px + dirX * 80.0f;
-                balas.emplace_back(*world, spawnX, py, dirX, 0.0f, true);
-                jogador->resetShootCooldown();
-            }
-            break;
-        case SDLK_ESCAPE:
-            running = false;
-            break;
-        default:
-            break;
         }
     }
 }
@@ -198,15 +189,15 @@ void Game::update(float dt) {
         bala.update(dt);
     }
 
-    const float playerPx = jogador->getBody()->GetPosition().x * P2M;
+    const float jogadorPx = jogador->getBody()->GetPosition().x * P2M;
     for (auto& bandit : bandidos) {
         bandit.update(dt);
 
-        if (bandit.shouldShoot(dt, playerPx)) {
+        if (bandit.shouldShoot(dt, jogadorPx)) {
             const float bx = bandit.getBody()->GetPosition().x * P2M;
             const float by = bandit.getBody()->GetPosition().y * P2M;
-            const float dirX = bandit.getShootDirX(playerPx);
-            balas.emplace_back(*world, bx + dirX * 30.0f, by, dirX, 0.0f, false);
+            const float dirX = bandit.getShootDirX(jogadorPx);
+            balas.emplace_back(*world, bx + dirX * 30.0f, by, dirX, 0.0f, false, renderizacao);
         }
     }
 
@@ -226,14 +217,14 @@ void Game::update(float dt) {
 }
 
 void Game::updateCamera() {
-    const int playerPixelX = static_cast<int>(jogador->getBody()->GetPosition().x * P2M);
-    cameraX = playerPixelX - TELA_WIDTH / 2;
+    const int jogadorPixelX = static_cast<int>(jogador->getBody()->GetPosition().x * P2M);
+    cameraX = jogadorPixelX - TELA_WIDTH / 2;
 }
 
 void Game::spawnBandit() {
-    const float playerPx = jogador->getBody()->GetPosition().x * P2M;
+    const float jogadorPx = jogador->getBody()->GetPosition().x * P2M;
     const float side = (std::rand() % 2 == 0) ? 1.0f : -1.0f;
-    const float spawnX = playerPx + side * (TELA_WIDTH * 0.6f);
+    const float spawnX = jogadorPx + side * (TELA_WIDTH * 0.6f);
     const float spawnY = terreno->getHeightAt(spawnX) - 50.0f;
 
     bandidos.emplace_back(*world, renderizacao, spawnX, spawnY, nextBanditId++);
@@ -282,9 +273,7 @@ void Game::processCollisions() {
             }
         }
 
-        if (a->type == EntityType::PLAYER && b->type == EntityType::TERRAIN) {
-            jogador->setOnGround(true);
-        }
+        if (a->type == EntityType::PLAYER && b->type == EntityType::TERRAIN) jogador->setOnGround(true);
 
         if (b->type == EntityType::TERRAIN &&
             (a->type == EntityType::BULLET_PLAYER || a->type == EntityType::BULLET_BANDIT)) {
