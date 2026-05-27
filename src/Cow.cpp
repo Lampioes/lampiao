@@ -1,20 +1,18 @@
 #include "../include/Cow.h"
 #include "../include/ContactListener.h"
+#include <bit>
 
-Cow::Cow(b2World& world, float x, float y, int id) : idVaca(id) {
-    b2BodyDef defCorpo;
-    defCorpo.type = b2_staticBody; // vaca fica parada
-    defCorpo.position.Set(x / P2M, y / P2M);
-    corpo = world.CreateBody(&defCorpo);
-
+Cow::Cow(b2World& world, float x, float y, int id)
+    : StaticObject(world, x, y), idVaca(id)
+{
     b2PolygonShape forma;
     forma.SetAsBox(LARGURA / (2.0f * P2M), ALTURA / (2.0f * P2M));
 
     b2FixtureDef defFixacao;
     defFixacao.shape = &forma;
 
-    EntityData* dados = new EntityData{EntityType::COW, id};
-    defFixacao.userData.pointer = reinterpret_cast<uintptr_t>(dados);
+    DadosEntidade* vaca = new DadosEntidade{TipoEntidade::COW, id};
+    defFixacao.userData.pointer = std::bit_cast<uintptr_t>(vaca);
 
     corpo->CreateFixture(&defFixacao);
 }
@@ -39,17 +37,4 @@ void Cow::draw(SDL_Renderer* renderer, int cameraX) {
 
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_RenderDrawRect(renderer, &retanguloCorpo);
-}
-
-void Cow::destroyBody(b2World& world) {
-    if (corpo) {
-        b2Fixture* f = corpo->GetFixtureList();
-        while (f) {
-            auto* dados = reinterpret_cast<EntityData*>(f->GetUserData().pointer);
-            delete dados;
-            f = f->GetNext();
-        }
-        world.DestroyBody(corpo);
-        corpo = nullptr;
-    }
 }

@@ -3,28 +3,25 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
-#include <box2d/box2d.h>
 
-class Bandit {
+#include "DynamicObject.h"
+
+class Bandit : public DynamicObject {
 public:
     Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id);
-    ~Bandit() = default;
 
-    void update(float dt);
-    void draw(SDL_Renderer* renderer, int cameraX);
+    void update(float dt) override;
+    void draw(SDL_Renderer* renderer, int cameraX) override;
 
     bool isAlive() const { return vivo; }
     void takeDamage();
-    b2Body* getBody() const { return corpo; }
     int getId() const { return idBandido; }
 
     float getShootDirX(float playerX);
 
-    void destroyBody(b2World& world);
     bool shouldShoot(float dt, float playerx);
 
 private:
-    b2Body* corpo = nullptr;
     int idBandido;
     bool vivo = true;
     float temporizadorTiro = 0.0f;
@@ -34,10 +31,9 @@ private:
     bool viradoEsquerda = false;
     bool recarregando = false;
     float temporizadorRecarga = 0.0f;
+
     static constexpr float TEMPO_RECARGA = 1.5f;
     static constexpr float ALCANCE_TIRO = 400.0f;
-
-    static constexpr float P2M = 30.0f;
     static constexpr int LARGURA = 150;
     static constexpr int ALTURA = 180;
 };

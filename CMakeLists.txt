@@ -13,13 +13,15 @@ find_package(box2d REQUIRED)
 add_executable(JogoVelhoOeste
     src/main.cpp
     src/Game.cpp
+    src/PhysicsObject.cpp
+    src/StaticObject.cpp
+    src/DynamicObject.cpp
     src/Player.cpp
     src/Terrain.cpp
     src/Bullet.cpp
     src/Bandit.cpp
     src/Cow.cpp
     src/Fence.cpp
-    src/Rope.cpp
     src/ContactListener.cpp
 )
 

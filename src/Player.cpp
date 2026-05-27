@@ -1,15 +1,12 @@
 #include "../include/Player.h"
 #include "../include/ContactListener.h"
 #include <SDL_image.h>
+#include <bit>
 #include <cmath>
 
-Player::Player(b2World& world, SDL_Renderer* renderer, float x, float y) {
-    b2BodyDef defCorpo;
-    defCorpo.type = b2_dynamicBody;
-    defCorpo.position.Set(x / P2M, y / P2M);
-    defCorpo.fixedRotation = true;
-    corpo = world.CreateBody(&defCorpo);
-
+Player::Player(b2World& world, SDL_Renderer* renderer, float x, float y)
+    : DynamicObject(world, x, y, DynamicBodyConfig{.fixedRotation = true})
+{
     b2PolygonShape forma;
     forma.SetAsBox(1.0f, 1.0f);
 
@@ -18,8 +15,8 @@ Player::Player(b2World& world, SDL_Renderer* renderer, float x, float y) {
     defFixacao.density = 1.0f;
     defFixacao.friction = 0.3f;
 
-    EntityData* dados = new EntityData{EntityType::PLAYER, 0};
-    defFixacao.userData.pointer = reinterpret_cast<uintptr_t>(dados);
+    DadosEntidade* entidade = new DadosEntidade{TipoEntidade::PLAYER, 0};
+    defFixacao.userData.pointer = std::bit_cast<uintptr_t>(entidade);
 
     corpo->CreateFixture(&defFixacao);
 
@@ -111,8 +108,8 @@ void Player::update(float dt) {
 }
 
 void Player::draw(SDL_Renderer* renderer, int cameraX) {
-    retanguloRender.x = (int)(corpo->GetPosition().x * P2M) - 75 - cameraX;
-    retanguloRender.y = (int)(corpo->GetPosition().y * P2M) - 75;
+    retanguloRender.x = static_cast<int>(corpo->GetPosition().x * P2M) - 75 - cameraX;
+    retanguloRender.y = static_cast<int>(corpo->GetPosition().y * P2M) - 75;
     retanguloRender.w = 150;
     retanguloRender.h = 150;
 
@@ -122,21 +119,24 @@ void Player::draw(SDL_Renderer* renderer, int cameraX) {
     if (!texturas.empty() && texturas[frameAtual]) {
         SDL_RenderCopyEx(renderer, texturas[frameAtual], NULL, &retanguloRender, 0.0, NULL, flip);
     } else {
-
         SDL_SetRenderDrawColor(renderer, 50, 130, 50, 255);
         SDL_Rect retanguloCorpo = {retanguloRender.x + 30, retanguloRender.y + 20, 90, 110};
         SDL_RenderFillRect(renderer, &retanguloCorpo);
-
 
         SDL_SetRenderDrawColor(renderer, 139, 90, 43, 255);
         SDL_Rect chapeu = {retanguloRender.x + 20, retanguloRender.y, 110, 25};
         SDL_RenderFillRect(renderer, &chapeu);
     }
 
-
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     for (int i = 0; i < vida; ++i) {
         SDL_Rect coracao = {retanguloRender.x + i * 14, retanguloRender.y - 20, 12, 12};
         SDL_RenderFillRect(renderer, &coracao);
     }
+
 }
+
+void Player::captureCow() {
+
+}
+

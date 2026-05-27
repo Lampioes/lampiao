@@ -1,16 +1,15 @@
 #include "../include/Terrain.h"
 #include "../include/ContactListener.h"
-#include <cmath>
 #include <algorithm>
+#include <bit>
+#include <cmath>
 
-Terrain::Terrain(b2World& world) {
+Terrain::Terrain(b2World& world) : StaticObject(world, 0.0f, 0.0f) {
     espacamentoPontos = static_cast<float>(NUM_ZONAS * TELA_W) / TOTAL_PONTOS;
 
     generateHeightmap();
-    createPhysicsBody(world);
+    createChainFixture();
 }
-
-Terrain::~Terrain() {}
 
 void Terrain::generateHeightmap() {
     const float alturasBase[NUM_ZONAS] = {
@@ -58,12 +57,7 @@ void Terrain::generateHeightmap() {
     alturas[TOTAL_PONTOS] = alturas[0];
 }
 
-void Terrain::createPhysicsBody(b2World& world) {
-    b2BodyDef defCorpo;
-    defCorpo.type = b2_staticBody;
-    defCorpo.position.Set(0.0f, 0.0f);
-    corpoChao = world.CreateBody(&defCorpo);
-
+void Terrain::createChainFixture() {
     const int totalVertices = NUM_REPETICOES * TOTAL_PONTOS + 1;
     const int meioRepeticoes = NUM_REPETICOES / 2;
     const float offsetPixel = -static_cast<float>(meioRepeticoes) * TOTAL_PONTOS * espacamentoPontos;
@@ -84,10 +78,10 @@ void Terrain::createPhysicsBody(b2World& world) {
     defFixacao.shape = &correia;
     defFixacao.friction = 0.6f;
 
-    EntityData* dados = new EntityData{EntityType::TERRAIN, 0};
-    defFixacao.userData.pointer = reinterpret_cast<uintptr_t>(dados);
+    DadosEntidade* dados = new DadosEntidade{TipoEntidade::TERRAIN, 0};
+    defFixacao.userData.pointer = std::bit_cast<uintptr_t>(dados);
 
-    corpoChao->CreateFixture(&defFixacao);
+    corpo->CreateFixture(&defFixacao);
 }
 
 float Terrain::getHeightAt(float pixelX) const {

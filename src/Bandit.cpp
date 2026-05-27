@@ -1,14 +1,11 @@
 #include "../include/Bandit.h"
 #include "../include/ContactListener.h"
+#include <bit>
 #include <cmath>
 
-Bandit::Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id) : idBandido(id) {
-    b2BodyDef defCorpo;
-    defCorpo.type = b2_dynamicBody;
-    defCorpo.position.Set(x / P2M, y / P2M);
-    defCorpo.fixedRotation = true;
-    corpo = world.CreateBody(&defCorpo);
-
+Bandit::Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id)
+    : DynamicObject(world, x, y, DynamicBodyConfig{.fixedRotation = true}), idBandido(id)
+{
     b2PolygonShape forma;
     forma.SetAsBox(LARGURA / (2.0f * P2M), ALTURA / (2.0f * P2M));
 
@@ -17,8 +14,8 @@ Bandit::Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id)
     defFixacao.density = 1.0f;
     defFixacao.friction = 0.3f;
 
-    EntityData* dados = new EntityData{EntityType::BANDIT, id};
-    defFixacao.userData.pointer = reinterpret_cast<uintptr_t>(dados);
+    DadosEntidade* dados = new DadosEntidade{TipoEntidade::BANDIT, id};
+    defFixacao.userData.pointer = std::bit_cast<uintptr_t>(dados);
 
     corpo->CreateFixture(&defFixacao);
 
@@ -71,28 +68,23 @@ void Bandit::draw(SDL_Renderer* renderer, int cameraX) {
         return;
     }
 
-    SDL_Rect dst = {x, y, LARGURA, ALTURA};
-    SDL_RendererFlip flip = viradoEsquerda ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    SDL_Rect ondecolocar = {x, y, LARGURA, ALTURA};
+    SDL_RendererFlip virar = viradoEsquerda ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-    if (textura) {
-        SDL_RenderCopyEx(renderer, textura, NULL, &dst, 0.0, NULL, flip);
-    } else {
-        SDL_SetRenderDrawColor(renderer, 139, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &dst);
-    }
+    SDL_RenderCopyEx(renderer, textura, NULL, &ondecolocar, 0.0, NULL, virar);
 
     float razaoVida = vida / 3.0f;
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
     SDL_Rect barraFundo = {x, y - 20, LARGURA, 4};
     SDL_RenderFillRect(renderer, &barraFundo);
     SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
-    SDL_Rect barraVida = {x, y - 20, static_cast<int>(LARGURA * razaoVida), 4};
+    SDL_Rect barraVida = {x, y - 20, (int)(LARGURA * razaoVida), 4};
     SDL_RenderFillRect(renderer, &barraVida);
 
     if (recarregando) {
         float razaoRecarga = temporizadorRecarga / TEMPO_RECARGA;
         SDL_SetRenderDrawColor(renderer, 50, 50, 200, 255);
-        SDL_Rect barraRecarga = {x, y - 26, static_cast<int>(LARGURA * razaoRecarga), 3};
+        SDL_Rect barraRecarga = {x, y - 26, (int)(LARGURA * razaoRecarga), 3};
         SDL_RenderFillRect(renderer, &barraRecarga);
     }
 }
@@ -106,22 +98,6 @@ float Bandit::getShootDirX(float playerX) {
 
 void Bandit::takeDamage() {
     vida--;
-    if (vida <= 0) {
-        vivo = false;
-    }
+    if (vida <= 0) vivo = false;
 }
 
-void Bandit::destroyBody(b2World& world) {
-    if (corpo) {
-        b2Fixture* f = corpo->GetFixtureList();
-        while (f) {
-            auto ptr = f->GetUserData().pointer;
-            if (ptr) {
-                delete reinterpret_cast<EntityData*>(ptr);
-            }
-            f = f->GetNext();
-        }
-        world.DestroyBody(corpo);
-        corpo = nullptr;
-    }
-}

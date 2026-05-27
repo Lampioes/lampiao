@@ -1,22 +1,21 @@
 #include "../include/ContactListener.h"
+#include <bit>
 
 void GameContactListener::BeginContact(b2Contact* contact) {
     b2Fixture* fixtureA = contact->GetFixtureA();
     b2Fixture* fixtureB = contact->GetFixtureB();
 
-    auto ptrA = fixtureA->GetUserData().pointer;
-    auto ptrB = fixtureB->GetUserData().pointer;
+    auto ponteiroa = fixtureA->GetUserData().pointer;
+    auto ponteirob = fixtureB->GetUserData().pointer;
 
-    if (!ptrA || !ptrB) return;
+    DadosEntidade* entidadeA = std::bit_cast<DadosEntidade*>(ponteiroa);
+    DadosEntidade* entidadeB = std::bit_cast<DadosEntidade*>(ponteirob);
 
-    EntityData* dadosA = reinterpret_cast<EntityData*>(ptrA);
-    EntityData* dadosB = reinterpret_cast<EntityData*>(ptrB);
-
-    colisoesPendentes.push_back({dadosA, dadosB});
+    colisoesPendentes.push_back({entidadeA, entidadeB});
 }
 
-std::vector<CollisionPair> GameContactListener::getAndClearCollisions() {
-    std::vector<CollisionPair> resultado = std::move(colisoesPendentes);
+std::vector<ParColisao> GameContactListener::getAndClearCollisions() {
+    std::vector<ParColisao> resultado = std::move(colisoesPendentes);
     colisoesPendentes.clear();
     return resultado;
 }

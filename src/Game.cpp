@@ -82,7 +82,7 @@ bool Game::initPhysics() {
 }
 
 bool Game::loadAssets() {
-    static constexpr const char* CAMINHOS_FUNDO[NUMERO_BACKGROUNDS] = {
+    static const char* CAMINHOS_FUNDO[NUMERO_BACKGROUNDS] = {
         "../sprites/montanhas.jpg",
         "../sprites/transicao-montanhas-deserto.jpg",
         "../sprites/calica-deserto.png",
@@ -111,16 +111,11 @@ bool Game::loadAssets() {
 }
 
 void Game::setupLevel() {
-    const float currumbaY = terreno->getHeightAt(PEN_X) - 30.0f;
-    cercas.emplace_back(*mundo, PEN_X - 100.0f, currumbaY, 10.0f, 60.0f);
-    cercas.emplace_back(*mundo, PEN_X + 100.0f, currumbaY, 10.0f, 60.0f);
-    cercas.emplace_back(*mundo, PEN_X, currumbaY - 30.0f, 210.0f, 10.0f);
-
     const float larguraCiclo = static_cast<float>(Terrain::NUM_ZONAS * Terrain::TELA_W);
     const float espacoEntreVacas = larguraCiclo / NUMERO_VACAS;
     for (int i = 0; i < NUMERO_VACAS; ++i) {
-        const float jitter = static_cast<float>((i * 137) % 200) - 100.0f;
-        const float vacaX = espacoEntreVacas * (i + 0.5f) + jitter;
+        const float aleatoridadeVcas = static_cast<float>((i * 137) % 200) - 100.0f;
+        const float vacaX = espacoEntreVacas * (i + 0.5f) + aleatoridadeVcas;
         const float vacaY = terreno->getHeightAt(vacaX) - 25.0f;
         vacas.emplace_back(*mundo, vacaX, vacaY, i);
     }
@@ -129,9 +124,7 @@ void Game::setupLevel() {
 void Game::handleEvents() {
     SDL_Event evento;
     while (SDL_PollEvent(&evento)) {
-        if (evento.type == SDL_QUIT) {
-            rodando = false;
-        }
+        if (evento.type == SDL_QUIT) rodando = false;
         if (evento.type == SDL_KEYDOWN) {
             switch (evento.key.keysym.sym) {
             case SDLK_RIGHT:
@@ -145,11 +138,11 @@ void Game::handleEvents() {
                 break;
             case SDLK_z:
                 if (jogador->canShoot()) {
-                    float px = jogador->getBody()->GetPosition().x * P2M;
-                    float py = jogador->getBody()->GetPosition().y * P2M;
-                    float dirX = jogador->getShootDirX();
-                    float spawnX = px + dirX * 80.0f;
-                    balas.emplace_back(*mundo, spawnX, py, dirX, 0.0f, true, renderizacao);
+                    float posicaoX = jogador->getBody()->GetPosition().x * PIXELSPORMETRO;
+                    float posicaoY = jogador->getBody()->GetPosition().y * PIXELSPORMETRO;
+                    float direcao = jogador->getShootDirX();
+                    float spawnX = posicaoX + direcao * 80.0f;
+                    balas.emplace_back(*mundo, spawnX, posicaoY, direcao, 0.0f, true, renderizacao);
                     jogador->resetShootCooldown();
                 }
                 break;
@@ -174,13 +167,13 @@ void Game::update(float dt) {
         bala.update(dt);
     }
 
-    const float jogadorPx = jogador->getBody()->GetPosition().x * P2M;
+    const float jogadorPx = jogador->getBody()->GetPosition().x * PIXELSPORMETRO;
     for (auto& bandido : bandidos) {
         bandido.update(dt);
 
         if (bandido.shouldShoot(dt, jogadorPx)) {
-            const float bx = bandido.getBody()->GetPosition().x * P2M;
-            const float by = bandido.getBody()->GetPosition().y * P2M;
+            const float bx = bandido.getBody()->GetPosition().x * PIXELSPORMETRO;
+            const float by = bandido.getBody()->GetPosition().y * PIXELSPORMETRO;
             const float dirX = bandido.getShootDirX(jogadorPx);
             balas.emplace_back(*mundo, bx + dirX * 30.0f, by, dirX, 0.0f, false, renderizacao);
         }
@@ -202,12 +195,12 @@ void Game::update(float dt) {
 }
 
 void Game::updateCamera() {
-    const int jogadorPixelX = static_cast<int>(jogador->getBody()->GetPosition().x * P2M);
+    const int jogadorPixelX = static_cast<int>(jogador->getBody()->GetPosition().x * PIXELSPORMETRO);
     cameraX = jogadorPixelX - TELA_WIDTH / 2;
 }
 
 void Game::spawnBandit() {
-    const float jogadorPx = jogador->getBody()->GetPosition().x * P2M;
+    const float jogadorPx = jogador->getBody()->GetPosition().x * PIXELSPORMETRO;
     const float lado = (std::rand() % 2 == 0) ? 1.0f : -1.0f;
     const float spawnX = jogadorPx + lado * (TELA_WIDTH * 0.6f);
     const float spawnY = terreno->getHeightAt(spawnX) - 50.0f;
@@ -219,17 +212,13 @@ void Game::processCollisions() {
     auto colisoes = ouvinteContato.getAndClearCollisions();
 
     for (auto& col : colisoes) {
-        EntityData* a = col.a;
-        EntityData* b = col.b;
-        if (!a || !b) {
-            continue;
-        }
+        DadosEntidade* a = col.a;
+        DadosEntidade* b = col.b;
+        if (!a || !b) continue;
 
-        if (a->tipo > b->tipo) {
-            std::swap(a, b);
-        }
+        if (a->tipo > b->tipo) std::swap(a, b);
 
-        if (a->tipo == EntityType::BULLET_PLAYER && b->tipo == EntityType::BANDIT) {
+        if (a->tipo == TipoEntidade::BULLET_PLAYER && b->tipo == TipoEntidade::BANDIT) {
             for (auto& bala : balas) {
                 if (bala.isFromPlayer() && bala.isAlive()) {
                     bala.kill();
@@ -240,15 +229,13 @@ void Game::processCollisions() {
             for (auto& bandido : bandidos) {
                 if (bandido.getId() == b->id && bandido.isAlive()) {
                     bandido.takeDamage();
-                    if (!bandido.isAlive()) {
-                        pontuacao += 100;
-                    }
+                    if (!bandido.isAlive()) pontuacao += 100;
                     break;
                 }
             }
         }
 
-        if (a->tipo == EntityType::PLAYER && b->tipo == EntityType::BULLET_BANDIT) {
+        if (a->tipo == TipoEntidade::PLAYER && b->tipo == TipoEntidade::BULLET_BANDIT) {
             jogador->takeDamage();
             for (auto& bala : balas) {
                 if (!bala.isFromPlayer() && bala.isAlive()) {
@@ -258,10 +245,10 @@ void Game::processCollisions() {
             }
         }
 
-        if (a->tipo == EntityType::PLAYER && b->tipo == EntityType::TERRAIN) jogador->setOnGround(true);
+        if (a->tipo == TipoEntidade::PLAYER && b->tipo == TipoEntidade::TERRAIN) jogador->setOnGround(true);
 
-        if (b->tipo == EntityType::TERRAIN &&
-            (a->tipo == EntityType::BULLET_PLAYER || a->tipo == EntityType::BULLET_BANDIT)) {
+        if (b->tipo == TipoEntidade::TERRAIN &&
+            (a->tipo == TipoEntidade::BULLET_PLAYER || a->tipo == TipoEntidade::BULLET_BANDIT)) {
             for (auto& bala : balas) {
                 if (bala.isAlive()) {
                     bala.kill();
@@ -269,23 +256,25 @@ void Game::processCollisions() {
                 }
             }
         }
+
+        if (a-> tipo == TipoEntidade::PLAYER && b->tipo == TipoEntidade::COW) jogador->captureCow();
     }
 }
 
 void Game::cleanupDead() {
-    for (auto it = balas.begin(); it != balas.end();) {
-        if (!it->isAlive()) {
-            it->destroyBody(*mundo);
-            it = balas.erase(it);
-        } else ++it;
+    for (auto bala = balas.begin(); bala != balas.end();) {
+        if (!bala->isAlive()) {
+            bala->destroyBody(*mundo);
+            bala = balas.erase(bala);
+        } else ++bala;
     }
 
-    for (auto it = bandidos.begin(); it != bandidos.end();) {
-        if (!it->isAlive()) {
-            it->destroyBody(*mundo);
-            it = bandidos.erase(it);
+    for (auto vaiMorrer = bandidos.begin(); vaiMorrer != bandidos.end();) {
+        if (!vaiMorrer->isAlive()) {
+            vaiMorrer->destroyBody(*mundo);
+            vaiMorrer = bandidos.erase(vaiMorrer);
         } else {
-            ++it;
+            ++vaiMorrer;
         }
     }
 }
@@ -326,9 +315,7 @@ void Game::renderBackgrounds() {
         const int indiceFundo = ((z % NUMERO_BACKGROUNDS) + NUMERO_BACKGROUNDS) % NUMERO_BACKGROUNDS;
         SDL_Rect destino = {telaX, 0, TELA_WIDTH, TELA_ALTURA};
 
-        if (backgrounds[indiceFundo]) {
-            SDL_RenderCopy(renderizacao, backgrounds[indiceFundo], nullptr, &destino);
-        }
+        if (backgrounds[indiceFundo]) SDL_RenderCopy(renderizacao, backgrounds[indiceFundo], nullptr, &destino);
     }
 }
 

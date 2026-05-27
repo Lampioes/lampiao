@@ -1,3 +1,0 @@
-/Users/arthurricken/Desktop/Lampioes/lampiao/build/CMakeFiles/JogoVelhoOeste.dir
-/Users/arthurricken/Desktop/Lampioes/lampiao/build/CMakeFiles/edit_cache.dir
-/Users/arthurricken/Desktop/Lampioes/lampiao/build/CMakeFiles/rebuild_cache.dir

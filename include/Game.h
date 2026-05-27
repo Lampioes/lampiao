@@ -21,7 +21,7 @@ public:
     int run();
 
 private:
-    static constexpr float P2M = 30.0f;
+    static constexpr float PIXELSPORMETRO = 30.0f;
     static constexpr int TELA_WIDTH = Terrain::TELA_W;
     static constexpr int TELA_ALTURA = Terrain::TELA_H;
     static constexpr int NUMERO_BACKGROUNDS = Terrain::NUM_ZONAS;
