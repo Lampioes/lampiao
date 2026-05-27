@@ -12,9 +12,18 @@ int Game::run() {
         return -1;
     }
 
+    const Uint64 frequencia = SDL_GetPerformanceFrequency();
+    Uint64 instanteAnterior = SDL_GetPerformanceCounter();
+
     while (rodando) {
+        const Uint64 instanteAtual = SDL_GetPerformanceCounter();
+        float delta_t = static_cast<float>(instanteAtual - instanteAnterior) / static_cast<float>(frequencia);
+        instanteAnterior = instanteAtual;
+
+        if (delta_t > 0.1f) delta_t = 0.1f;
+
         handleEvents();
-        update(1.0f / 60.0f);
+        update(delta_t);
         render();
     }
 
@@ -203,7 +212,7 @@ void Game::spawnBandit() {
     const float jogadorPx = jogador->getBody()->GetPosition().x * PIXELSPORMETRO;
     const float lado = (std::rand() % 2 == 0) ? 1.0f : -1.0f;
     const float spawnX = jogadorPx + lado * (TELA_WIDTH * 0.6f);
-    const float spawnY = terreno->getHeightAt(spawnX) - 50.0f;
+    const float spawnY = terreno->getHeightAt(spawnX) - 100.0f;
 
     bandidos.emplace_back(*mundo, renderizacao, spawnX, spawnY, proxIdBandido++);
 }

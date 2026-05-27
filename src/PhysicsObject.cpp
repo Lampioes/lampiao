@@ -8,9 +8,7 @@ void PhysicsObject::destroyBody(b2World& world) {
 
     b2Fixture* f = corpo->GetFixtureList();
     while (f) {
-        if (auto ponteiro = f->GetUserData().pointer) {
-            delete std::bit_cast<DadosEntidade*>(ponteiro);
-        }
+        if (auto ponteiro = f->GetUserData().pointer) delete std::bit_cast<DadosEntidade*>(ponteiro);
         f = f->GetNext();
     }
 
