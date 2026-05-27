@@ -99,11 +99,15 @@ bool Game::loadAssets() {
         "../sprites/calica-deserto.png",
     };
 
-    terreno = new Terrain(*mundo);
+    auto terrenoPtr = std::make_unique<Terrain>(*mundo);
+    terreno = terrenoPtr.get();
+    objetos.push_back(std::move(terrenoPtr));
 
     const float jogadorInicioX = 300.0f;
     const float jogadorInicioY = terreno->getHeightAt(jogadorInicioX) - 80.0f;
-    jogador = new Player(*mundo, renderizacao, jogadorInicioX, jogadorInicioY);
+    auto jogadorPtr = std::make_unique<Player>(*mundo, renderizacao, jogadorInicioX, jogadorInicioY);
+    jogador = jogadorPtr.get();
+    objetos.push_back(std::move(jogadorPtr));
 
     for (int i = 0; i < NUMERO_BACKGROUNDS; ++i) {
         backgrounds[i] = IMG_LoadTexture(renderizacao, CAMINHOS_FUNDO[i]);
@@ -126,7 +130,7 @@ void Game::setupLevel() {
         const float aleatoridadeVcas = static_cast<float>((i * 137) % 200) - 100.0f;
         const float vacaX = espacoEntreVacas * (i + 0.5f) + aleatoridadeVcas;
         const float vacaY = terreno->getHeightAt(vacaX) - 25.0f;
-        vacas.emplace_back(*mundo, vacaX, vacaY, i);
+        objetos.push_back(std::make_unique<Cow>(*mundo, vacaX, vacaY, i));
     }
 }
 
@@ -151,7 +155,8 @@ void Game::handleEvents() {
                     float posicaoY = jogador->getBody()->GetPosition().y * PIXELSPORMETRO;
                     float direcao = jogador->getShootDirX();
                     float spawnX = posicaoX + direcao * 80.0f;
-                    balas.emplace_back(*mundo, spawnX, posicaoY, direcao, 0.0f, true, renderizacao);
+                    paraAdicionar.push_back(std::make_unique<Bullet>(
+                        *mundo, spawnX, posicaoY, direcao, 0.0f, true, renderizacao));
                     jogador->resetShootCooldown();
                 }
                 break;
@@ -171,22 +176,20 @@ void Game::update(float dt) {
 
     mundo->Step(dt, 6, 2);
 
-    jogador->update(dt);
-    for (auto& bala : balas) {
-        bala.update(dt);
+    for (auto& o : objetos) {
+        o->update(dt);
     }
 
     const float jogadorPx = jogador->getBody()->GetPosition().x * PIXELSPORMETRO;
-    for (auto& bandido : bandidos) {
-        bandido.update(dt);
-
+    forEach<Bandit>([&](Bandit& bandido) {
         if (bandido.shouldShoot(dt, jogadorPx)) {
             const float bx = bandido.getBody()->GetPosition().x * PIXELSPORMETRO;
             const float by = bandido.getBody()->GetPosition().y * PIXELSPORMETRO;
             const float dirX = bandido.getShootDirX(jogadorPx);
-            balas.emplace_back(*mundo, bx + dirX * 30.0f, by, dirX, 0.0f, false, renderizacao);
+            paraAdicionar.push_back(std::make_unique<Bullet>(
+                *mundo, bx + dirX * 30.0f, by, dirX, 0.0f, false, renderizacao));
         }
-    }
+    });
 
     temporizadorSpawnBandido += dt;
     if (temporizadorSpawnBandido >= intervaloSpawnBandido) {
@@ -196,6 +199,7 @@ void Game::update(float dt) {
 
     processCollisions();
     cleanupDead();
+    flushSpawns();
     updateCamera();
 
     if (!jogador->isAlive()) {
@@ -212,9 +216,17 @@ void Game::spawnBandit() {
     const float jogadorPx = jogador->getBody()->GetPosition().x * PIXELSPORMETRO;
     const float lado = (std::rand() % 2 == 0) ? 1.0f : -1.0f;
     const float spawnX = jogadorPx + lado * (TELA_WIDTH * 0.6f);
-    const float spawnY = terreno->getHeightAt(spawnX) - 100.0f;
+    const float spawnY = terreno->getHeightAt(spawnX) - 150.0f;
 
-    bandidos.emplace_back(*mundo, renderizacao, spawnX, spawnY, proxIdBandido++);
+    paraAdicionar.push_back(std::make_unique<Bandit>(
+        *mundo, renderizacao, spawnX, spawnY, proxIdBandido++));
+}
+
+void Game::flushSpawns() {
+    for (auto& o : paraAdicionar) {
+        objetos.push_back(std::move(o));
+    }
+    paraAdicionar.clear();
 }
 
 void Game::processCollisions() {
@@ -228,64 +240,48 @@ void Game::processCollisions() {
         if (a->tipo > b->tipo) std::swap(a, b);
 
         if (a->tipo == TipoEntidade::BULLET_PLAYER && b->tipo == TipoEntidade::BANDIT) {
-            for (auto& bala : balas) {
-                if (bala.isFromPlayer() && bala.isAlive()) {
-                    bala.kill();
-                    break;
-                }
-            }
-
-            for (auto& bandido : bandidos) {
+            forEach<Bullet>([](Bullet& bala) {
+                if (bala.isFromPlayer() && bala.isAlive()) bala.kill();
+            });
+            forEach<Bandit>([&](Bandit& bandido) {
                 if (bandido.getId() == b->id && bandido.isAlive()) {
                     bandido.takeDamage();
                     if (!bandido.isAlive()) pontuacao += 100;
-                    break;
                 }
-            }
+            });
         }
 
         if (a->tipo == TipoEntidade::PLAYER && b->tipo == TipoEntidade::BULLET_BANDIT) {
             jogador->takeDamage();
-            for (auto& bala : balas) {
-                if (!bala.isFromPlayer() && bala.isAlive()) {
-                    bala.kill();
-                    break;
-                }
-            }
+            forEach<Bullet>([](Bullet& bala) {
+                if (!bala.isFromPlayer() && bala.isAlive()) bala.kill();
+            });
         }
 
         if (a->tipo == TipoEntidade::PLAYER && b->tipo == TipoEntidade::TERRAIN) jogador->setOnGround(true);
 
         if (b->tipo == TipoEntidade::TERRAIN &&
             (a->tipo == TipoEntidade::BULLET_PLAYER || a->tipo == TipoEntidade::BULLET_BANDIT)) {
-            for (auto& bala : balas) {
-                if (bala.isAlive()) {
-                    bala.kill();
-                    break;
-                }
-            }
+            forEach<Bullet>([](Bullet& bala) {
+                if (bala.isAlive()) bala.kill();
+            });
         }
 
-        if (a-> tipo == TipoEntidade::PLAYER && b->tipo == TipoEntidade::COW) jogador->captureCow();
+        if (a->tipo == TipoEntidade::PLAYER && b->tipo == TipoEntidade::COW) jogador->captureCow();
     }
 }
 
 void Game::cleanupDead() {
-    for (auto bala = balas.begin(); bala != balas.end();) {
-        if (!bala->isAlive()) {
-            bala->destroyBody(*mundo);
-            bala = balas.erase(bala);
-        } else ++bala;
-    }
-
-    for (auto vaiMorrer = bandidos.begin(); vaiMorrer != bandidos.end();) {
-        if (!vaiMorrer->isAlive()) {
-            vaiMorrer->destroyBody(*mundo);
-            vaiMorrer = bandidos.erase(vaiMorrer);
-        } else {
-            ++vaiMorrer;
-        }
-    }
+    objetos.erase(std::remove_if(objetos.begin(), objetos.end(),
+        [this](std::unique_ptr<GameObject>& o) {
+            if (o.get() == jogador) return false;
+            if (!o->isAlive()) {
+                o->destroyBody(*mundo);
+                return true;
+            }
+            return false;
+        }),
+        objetos.end());
 }
 
 void Game::render() {
@@ -294,21 +290,10 @@ void Game::render() {
 
     renderBackgrounds();
 
-    terreno->draw(renderizacao, cameraX);
-    for (auto& cerca : cercas) {
-        cerca.draw(renderizacao, cameraX);
-    }
-    for (auto& vaca : vacas) {
-        vaca.draw(renderizacao, cameraX);
-    }
-    for (auto& bandido : bandidos) {
-        bandido.draw(renderizacao, cameraX);
-    }
-    for (auto& bala : balas) {
-        bala.draw(renderizacao, cameraX);
+    for (auto& o : objetos) {
+        o->draw(renderizacao, cameraX);
     }
 
-    jogador->draw(renderizacao, cameraX);
     renderHUD();
 
     SDL_RenderPresent(renderizacao);
@@ -319,7 +304,7 @@ void Game::renderBackgrounds() {
 
     for (int z = zonaInicial; z <= zonaInicial + 2; ++z) {
         const int telaX = z * TELA_WIDTH - cameraX;
-        if (telaX + TELA_WIDTH < 0 || telaX > TELA_WIDTH) continue; 
+        if (telaX + TELA_WIDTH < 0 || telaX > TELA_WIDTH) continue;
 
         const int indiceFundo = ((z % NUMERO_BACKGROUNDS) + NUMERO_BACKGROUNDS) % NUMERO_BACKGROUNDS;
         SDL_Rect destino = {telaX, 0, TELA_WIDTH, TELA_ALTURA};
@@ -343,24 +328,15 @@ void Game::renderHUD() {
 
 void Game::cleanup() {
     if (mundo) {
-        for (auto& bala : balas) {
-            bala.destroyBody(*mundo);
-        }
-        for (auto& bandido : bandidos) {
-            bandido.destroyBody(*mundo);
-        }
-        for (auto& vaca : vacas) {
-            vaca.destroyBody(*mundo);
-        }
-        for (auto& cerca : cercas) {
-            cerca.destroyBody(*mundo);
+        for (auto& o : objetos) {
+            o->destroyBody(*mundo);
         }
     }
 
-    balas.clear();
-    bandidos.clear();
-    vacas.clear();
-    cercas.clear();
+    objetos.clear();
+    paraAdicionar.clear();
+    jogador = nullptr;
+    terreno = nullptr;
 
     for (auto& bg : backgrounds) {
         if (bg) {
@@ -368,12 +344,6 @@ void Game::cleanup() {
             bg = nullptr;
         }
     }
-
-    delete jogador;
-    jogador = nullptr;
-
-    delete terreno;
-    terreno = nullptr;
 
     delete mundo;
     mundo = nullptr;
