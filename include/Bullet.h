@@ -22,7 +22,7 @@ private:
     float tempoVida = 0.0f;
     SDL_Texture* textura = nullptr;
 
-    static constexpr float VELOCIDADE = 15.0f;
+    static constexpr float VELOCIDADE = 50.0f;
     static constexpr float TEMPO_MAX_VIDA = 3.0f;
     static constexpr int TAMANHO = 48;
 };

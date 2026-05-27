@@ -39,7 +39,7 @@ private:
     bool viradoEsquerda = false;
     bool emMovimento = false;
     float alvoX = 0.0f;
-    float velocidadeMovimento = 0.25f;
+    float velocidadeMovimento = 10.0f;
     float ultimoX = 0.0f;
     int framesPreso = 0;
     int vida = 5;
@@ -49,7 +49,7 @@ private:
     static constexpr float DISTANCIA_MOVIMENTO = 10.0f;
     static constexpr float MIN_X = -10000.0f;
     static constexpr float MAX_X =  10000.0f;
-    static constexpr float IMPULSO_PULO = -5.0f;
+    static constexpr float IMPULSO_PULO = -35.0f;
     static constexpr float TEMPO_RECARGA_TIRO = 0.4f;
 
     void clampPosition();

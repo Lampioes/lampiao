@@ -27,7 +27,7 @@ private:
     static constexpr int NUMERO_BACKGROUNDS = Terrain::NUM_ZONAS;
     static constexpr int NUMERO_VACAS = 10;
     static constexpr float PEN_X = 500.0f;
-    static constexpr float GRAVIDADE = 0.125f;
+    static constexpr float GRAVIDADE = 10.0f;
 
     SDL_Window* janela = nullptr;
     SDL_Renderer* renderizacao = nullptr;
@@ -47,7 +47,7 @@ private:
     int cameraX = 0;
     bool rodando = true;
     float temporizadorSpawnBandido = 0.0f;
-    float intervaloSpawnBandido = 100.0f;
+    float intervaloSpawnBandido = 10.0f;
     int proxIdBandido = 0;
     int pontuacao = 0;
 

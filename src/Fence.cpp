@@ -26,8 +26,8 @@ void Fence::takeDamage(int dano) {
 void Fence::draw(SDL_Renderer* renderer, int cameraX) {
     if (destruida) return;
 
-    int x = (int)(posX) - cameraX - (int)(largura / 2);
-    int y = (int)(posY) - (int)(altura / 2);
+    int x = (int)(posicao.x) - cameraX - (int)(largura / 2);
+    int y = (int)(posicao.y) - (int)(altura / 2);
 
     int r = 139, g = 90 + (vida * 10), b = 43;
     SDL_SetRenderDrawColor(renderer, r, g, b, 255);

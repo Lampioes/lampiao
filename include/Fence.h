@@ -13,8 +13,8 @@ public:
 
     bool isDestroyed() const { return destruida; }
     void takeDamage(int dano);
-    float getX() const { return posX; }
-    float getY() const { return posY; }
+    float getX() const { return posicao.x; }
+    float getY() const { return posicao.y; }
     float getWidth() const { return largura; }
 
 private:
