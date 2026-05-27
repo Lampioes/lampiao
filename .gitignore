@@ -1,2 +1,7 @@
-/cmake-build-debug
-.idea
+/build/
+/cmake-build-debug/
+/.idea/
+/.DS_Store
+/sprites/.DS_Store
+*.o
+/build

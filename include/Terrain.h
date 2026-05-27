@@ -2,35 +2,32 @@
 #define TERRAIN_H
 
 #include <SDL.h>
-#include <box2d/box2d.h>
 #include <array>
 #include <vector>
 
-class Terrain {
+#include "StaticObject.h"
+
+class Terrain : public StaticObject {
 public:
-    static constexpr int NUM_ZONES = 5;
-    static constexpr int POINTS_PER_ZONE = 20;
-    static constexpr int TOTAL_POINTS = NUM_ZONES * POINTS_PER_ZONE;
-    static constexpr float P2M = 30.0f;
-    static constexpr int SCREEN_W = 1920;
-    static constexpr int SCREEN_H = 1080;
+    static constexpr int NUM_ZONAS = 5;
+    static constexpr int PONTOS_POR_ZONA = 50;
+    static constexpr int TOTAL_PONTOS = NUM_ZONAS * PONTOS_POR_ZONA;
+    static constexpr int NUM_REPETICOES = 50;
+    static constexpr int TELA_W = 1920;
+    static constexpr int TELA_H = 1080;
 
     Terrain(b2World& world);
-    ~Terrain();
 
-    void draw(SDL_Renderer* renderer, int cameraX);
+    void draw(SDL_Renderer* renderer, int cameraX) override;
 
     float getHeightAt(float pixelX) const;
 
-    b2Body* getBody() const { return groundBody; }
-
 private:
-    b2Body* groundBody = nullptr;
-    std::array<float, TOTAL_POINTS + 1> heights{};
-    float pointSpacing;
+    std::array<float, TOTAL_PONTOS + 1> alturas{};
+    float espacamentoPontos;
 
     void generateHeightmap();
-    void createPhysicsBody(b2World& world);
+    void createChainFixture();
 };
 
 #endif
