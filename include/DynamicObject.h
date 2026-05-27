@@ -10,9 +10,6 @@ struct DynamicBodyConfig {
 };
 
 class DynamicObject : public PhysicsObject {
-public:
-    virtual void update(float dt) = 0;
-
 protected:
     DynamicObject(b2World& world, float x, float y, const DynamicBodyConfig& config = {});
 };

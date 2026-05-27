@@ -8,7 +8,10 @@ class GameObject {
 public:
     virtual ~GameObject() = default;
 
+    virtual void update(float /*dt*/) {}
     virtual void draw(SDL_Renderer* renderer, int cameraX) = 0;
+    virtual bool isAlive() const { return true; }
+    virtual void destroyBody(b2World& /*world*/) {}
 
     const b2Vec2& getPosition() const { return posicao; }
     float getPosX() const { return posicao.x; }

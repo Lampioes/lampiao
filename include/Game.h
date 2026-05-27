@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <array>
+#include <memory>
 #include <vector>
 
 #include <SDL.h>
@@ -13,6 +14,7 @@
 #include "ContactListener.h"
 #include "Cow.h"
 #include "Fence.h"
+#include "GameObject.h"
 #include "Player.h"
 #include "Terrain.h"
 
@@ -33,21 +35,20 @@ private:
     SDL_Renderer* renderizacao = nullptr;
     b2World* mundo = nullptr;
     GameContactListener ouvinteContato;
+
+    std::vector<std::unique_ptr<GameObject>> objetos;
+    std::vector<std::unique_ptr<GameObject>> paraAdicionar;
     Player* jogador = nullptr;
     Terrain* terreno = nullptr;
 
     Mix_Music* musicaFundo = nullptr;
     Mix_Chunk* somPulo = nullptr;
-    std::vector<Bullet> balas;
-    std::vector<Bandit> bandidos;
-    std::vector<Cow> vacas;
-    std::vector<Fence> cercas;
     std::array<SDL_Texture*, NUMERO_BACKGROUNDS> backgrounds{};
 
     int cameraX = 0;
     bool rodando = true;
     float temporizadorSpawnBandido = 0.0f;
-    float intervaloSpawnBandido = 10.0f;
+    float intervaloSpawnBandido = 5.0f;
     int proxIdBandido = 0;
     int pontuacao = 0;
 
@@ -64,6 +65,14 @@ private:
     void processCollisions();
     void spawnBandit();
     void cleanupDead();
+    void flushSpawns();
+
+    template <typename T, typename Fn>
+    void forEach(Fn&& fn) {
+        for (auto& o : objetos) {
+            if (auto* t = dynamic_cast<T*>(o.get())) fn(*t);
+        }
+    }
 
     void render();
     void renderBackgrounds();
