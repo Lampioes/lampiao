@@ -1,0 +1,12 @@
+# This is a generated file and its contents are an internal implementation detail.
+# The download step will be re-executed if anything in this file changes.
+# No other meaning or use of this file is supported.
+
+method=url
+command=C:/msys64/ucrt64/bin/cmake.exe;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/download-box2d-populate.cmake;COMMAND;C:/msys64/ucrt64/bin/cmake.exe;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/verify-box2d-populate.cmake;COMMAND;C:/msys64/ucrt64/bin/cmake.exe;-DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE;-P;C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/extract-box2d-populate.cmake
+source_dir=C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-src
+work_dir=C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps
+url(s)=https://github.com/erincatto/box2d/archive/refs/tags/v2.4.1.zip
+hash=
+      no_extract=
+

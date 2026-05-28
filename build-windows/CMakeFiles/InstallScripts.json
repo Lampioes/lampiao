@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/cmake_install.cmake",
+		"C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-build/cmake_install.cmake",
+		"C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-build/src/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -1,0 +1,21 @@
+# ninja log v7
+1	140	8016309442175978	box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-mkdir	7a9883a6308808ac
+1	140	8016309442175978	C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-mkdir	7a9883a6308808ac
+3	2656	8016310781536689	box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-download	eddfdaab89aad5e1
+3	2656	8016310781536689	C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-download	eddfdaab89aad5e1
+2656	2773	8016310782713730	box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-update	42201ab6ecef3459
+2656	2773	8016310782713730	C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-update	42201ab6ecef3459
+2774	2887	8016310783850142	box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-patch	e7a8c2e48fc921b2
+2774	2887	8016310783850142	C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-patch	e7a8c2e48fc921b2
+2887	2995	8016310784944016	box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-configure	8d7e1dfc93d40a70
+2887	2995	8016310784944016	C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-configure	8d7e1dfc93d40a70
+2996	3105	8016310786034543	box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-build	ce551e7867e2df9a
+2996	3105	8016310786034543	C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-build	ce551e7867e2df9a
+3105	3223	8016310787215707	box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-install	c031b1ba186e26e6
+3105	3223	8016310787215707	C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-install	c031b1ba186e26e6
+3223	3333	8016310788318171	box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-test	dd6a3f823d34f193
+3223	3333	8016310788318171	C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-test	dd6a3f823d34f193
+3333	3486	8016310789836934	CMakeFiles/box2d-populate-complete	190e8ab9ea65499
+3333	3486	8016310789836934	box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-done	190e8ab9ea65499
+3333	3486	8016310789836934	C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/CMakeFiles/box2d-populate-complete	190e8ab9ea65499
+3333	3486	8016310789836934	C:/IFPR/4ano/topicos/lampioes/lampiao/build-windows/_deps/box2d-subbuild/box2d-populate-prefix/src/box2d-populate-stamp/box2d-populate-done	190e8ab9ea65499
