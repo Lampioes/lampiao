@@ -164,6 +164,13 @@ void Game::handleEvents() {
                 rodando = false;
                 break;
             }
+        } else if (evento.type == SDL_KEYUP) {
+            switch (evento.key.keysym.sym) {
+            case SDLK_RIGHT:
+            case SDLK_LEFT:
+                jogador->stop();
+                break;
+            }
         }
     }
 }

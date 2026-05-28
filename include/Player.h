@@ -16,6 +16,7 @@ public:
 
     void moveRight();
     void moveLeft();
+    void stop();
     void jump();
 
     bool canShoot() const { return recargaTiro <= 0.0f; }
@@ -30,6 +31,7 @@ public:
     bool getIsMoving() const { return emMovimento; }
 
     void setOnGround(bool v) { noChao = v; }
+    bool isOnGround() const { return noChao; }
     void captureCow();
 
 private:

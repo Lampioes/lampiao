@@ -49,7 +49,9 @@ void Bullet::draw(SDL_Renderer* renderer, int cameraX) {
 
     if (textura) {
         SDL_Rect retanguloRender = {x - TAMANHO / 2, y - TAMANHO / 2, TAMANHO, TAMANHO};
-        SDL_RenderCopy(renderer, textura, nullptr, &retanguloRender);
+        b2Vec2 vel = corpo->GetLinearVelocity();
+        SDL_RendererFlip flip = vel.x < 0.0f ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+        SDL_RenderCopyEx(renderer, textura, nullptr, &retanguloRender, 0.0, nullptr, flip);
     } else {
         if (doJogador) SDL_SetRenderDrawColor(renderer, 255, 200, 50, 255);
         else SDL_SetRenderDrawColor(renderer, 255, 80, 80, 255);

@@ -26,6 +26,7 @@ Player::Player(b2World& world, SDL_Renderer* renderer, float x, float y)
 }
 
 void Player::moveRight() {
+    if (!noChao) return; // bloqueia mudança de direção no ar
     if (emMovimento) return;
     float xAtual = corpo->GetPosition().x;
     alvoX = std::min(xAtual + DISTANCIA_MOVIMENTO, MAX_X);
@@ -34,6 +35,7 @@ void Player::moveRight() {
 }
 
 void Player::moveLeft() {
+    if (!noChao) return; // bloqueia mudança de direção no ar
     if (emMovimento) return;
     float xAtual = corpo->GetPosition().x;
     alvoX = std::max(xAtual - DISTANCIA_MOVIMENTO, MIN_X);
@@ -45,6 +47,11 @@ void Player::jump() {
     if (!noChao) return;
     corpo->ApplyLinearImpulseToCenter(b2Vec2(0, IMPULSO_PULO), true);
     noChao = false;
+}
+
+void Player::stop() {
+    emMovimento = false;
+    corpo->SetLinearVelocity(b2Vec2(0.0f, corpo->GetLinearVelocity().y));
 }
 
 void Player::takeDamage() {
