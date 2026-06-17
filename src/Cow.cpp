@@ -10,6 +10,7 @@ Cow::Cow(b2World& world, const b2Vec2& p, int id)
 
     b2FixtureDef defFixacao;
     defFixacao.shape = &forma;
+    defFixacao.isSensor = true;
 
     DadosEntidade* vaca = new DadosEntidade{TipoEntidade::COW, id};
     defFixacao.userData.pointer = std::bit_cast<uintptr_t>(vaca);
