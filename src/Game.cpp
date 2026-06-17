@@ -115,9 +115,15 @@ bool Game::loadAssets() {
 
     musicaFundo = Mix_LoadMUS("../audio/bg.ogg");
     somPulo = Mix_LoadWAV("../audio/jump.wav");
+    somTiro = Mix_LoadWAV("../audio/gunshot.wav");
 
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
     Mix_VolumeChunk(somPulo, MIX_MAX_VOLUME / 2);
+    Mix_VolumeChunk(somTiro, MIX_MAX_VOLUME / 2);
+
+    if (musicaFundo) {
+        Mix_PlayMusic(musicaFundo, -1);
+    }
 
     setupLevel();
     return true;
@@ -147,10 +153,14 @@ void Game::handleEvents() {
                 jogador->moveLeft();
                 break;
             case SDLK_SPACE:
+                if (jogador->isOnGround()) {
+                    Mix_PlayChannel(-1, somPulo, 0);
+                }
                 jogador->jump();
                 break;
             case SDLK_z:
                 if (jogador->canShoot()) {
+                    Mix_PlayChannel(-1, somTiro, 0);
                     float posicaoX = jogador->getBody()->GetPosition().x * PIXELSPORMETRO;
                     float posicaoY = jogador->getBody()->GetPosition().y * PIXELSPORMETRO;
                     float direcao = jogador->getShootDirX();
@@ -358,6 +368,11 @@ void Game::cleanup() {
     if (somPulo) {
         Mix_FreeChunk(somPulo);
         somPulo = nullptr;
+    }
+
+    if (somTiro) {
+        Mix_FreeChunk(somTiro);
+        somTiro = nullptr;
     }
 
     if (musicaFundo) {

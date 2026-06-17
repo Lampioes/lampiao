@@ -43,6 +43,7 @@ private:
 
     Mix_Music* musicaFundo = nullptr;
     Mix_Chunk* somPulo = nullptr;
+    Mix_Chunk* somTiro = nullptr;
     std::array<SDL_Texture*, NUMERO_BACKGROUNDS> backgrounds{};
 
     int cameraX = 0;
