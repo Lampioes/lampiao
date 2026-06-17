@@ -4,10 +4,11 @@
 #include <SDL.h>
 
 #include "DynamicObject.h"
+#include "Sprite.h"
 
 class Bullet : public DynamicObject {
 public:
-    Bullet(b2World& world, float x, float y, float dirX, float dirY, bool doJogador, SDL_Renderer* renderer);
+    Bullet(b2World& world, const b2Vec2& p, const b2Vec2& dir, bool doJogador, SDL_Renderer* renderer);
 
     void update(float dt) override;
     void draw(SDL_Renderer* renderer, int cameraX) override;
@@ -20,7 +21,7 @@ private:
     bool viva = true;
     bool doJogador;
     float tempoVida = 0.0f;
-    SDL_Texture* textura = nullptr;
+    Sprite sprite;
 
     static constexpr float VELOCIDADE = 50.0f;
     static constexpr float TEMPO_MAX_VIDA = 3.0f;

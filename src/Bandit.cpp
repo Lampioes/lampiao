@@ -3,8 +3,9 @@
 #include <bit>
 #include <cmath>
 
-Bandit::Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id)
-    : DynamicObject(world, x, y, DynamicBodyConfig{.fixedRotation = true}), idBandido(id)
+Bandit::Bandit(b2World& world, SDL_Renderer* renderer, const b2Vec2& p, int id)
+    : DynamicObject(world, p, DynamicBodyConfig{.fixedRotation = true}), idBandido(id),
+      sprite(renderer, "../sprites/output_ixt5mp.gif")
 {
     b2PolygonShape forma;
     forma.SetAsBox(LARGURA / (2.0f * P2M), ALTURA / (2.0f * P2M));
@@ -18,8 +19,6 @@ Bandit::Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id)
     defFixacao.userData.pointer = std::bit_cast<uintptr_t>(dados);
 
     corpo->CreateFixture(&defFixacao);
-
-    textura = IMG_LoadTexture(renderer, "../sprites/output_ixt5mp.gif");
 }
 
 void Bandit::update(float dt) {
@@ -71,7 +70,7 @@ void Bandit::draw(SDL_Renderer* renderer, int cameraX) {
     SDL_Rect ondecolocar = {x, y, LARGURA, ALTURA};
     SDL_RendererFlip virar = viradoEsquerda ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-    SDL_RenderCopyEx(renderer, textura, NULL, &ondecolocar, 0.0, NULL, virar);
+    sprite.draw(renderer, ondecolocar, virar);
 
     float razaoVida = vida / 3.0f;
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
@@ -100,4 +99,3 @@ void Bandit::takeDamage() {
     vida--;
     if (vida <= 0) vivo = false;
 }
-

@@ -4,7 +4,7 @@
 #include <bit>
 #include <cmath>
 
-Terrain::Terrain(b2World& world) : StaticObject(world, 0.0f, 0.0f) {
+Terrain::Terrain(b2World& world) : StaticObject(world, b2Vec2(0.0f, 0.0f)) {
     espacamentoPontos = static_cast<float>(NUM_ZONAS * TELA_W) / TOTAL_PONTOS;
 
     generateHeightmap();

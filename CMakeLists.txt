@@ -23,6 +23,8 @@ add_executable(JogoVelhoOeste
     src/Cow.cpp
     src/Fence.cpp
     src/ContactListener.cpp
+    src/Sprite.cpp
+    src/Animation.cpp
 )
 
 target_include_directories(JogoVelhoOeste

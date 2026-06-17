@@ -1,17 +1,18 @@
 #include "../include/Bullet.h"
 #include "../include/ContactListener.h"
-#include <SDL_image.h>
 #include <bit>
 #include <cmath>
 
-Bullet::Bullet(b2World& world, float x, float y, float dirX, float dirY, bool doJogador, SDL_Renderer* renderer)
-    : DynamicObject(world, x, y, DynamicBodyConfig{.bullet = true, .gravityScale = 0.0f}),
-      doJogador(doJogador)
+Bullet::Bullet(b2World& world, const b2Vec2& p, const b2Vec2& dir, bool doJogador, SDL_Renderer* renderer)
+    : DynamicObject(world, p, DynamicBodyConfig{.bullet = true, .gravityScale = 0.0f}),
+      doJogador(doJogador),
+      sprite(renderer, "../sprites/bullet.png")
 {
-    float comprimento = std::sqrt(dirX * dirX + dirY * dirY);
+    b2Vec2 direcao = dir;
+    float comprimento = std::sqrt(direcao.x * direcao.x + direcao.y * direcao.y);
     if (comprimento > 0.001f) {
-        dirX /= comprimento;
-        dirY /= comprimento;
+        direcao.x /= comprimento;
+        direcao.y /= comprimento;
     }
 
     b2CircleShape forma;
@@ -28,9 +29,7 @@ Bullet::Bullet(b2World& world, float x, float y, float dirX, float dirY, bool do
 
     corpo->CreateFixture(&defFixacao);
 
-    corpo->SetLinearVelocity(b2Vec2(dirX * VELOCIDADE, dirY * VELOCIDADE));
-
-    textura = IMG_LoadTexture(renderer, "../sprites/bullet.png");
+    corpo->SetLinearVelocity(b2Vec2(direcao.x * VELOCIDADE, direcao.y * VELOCIDADE));
 }
 
 void Bullet::update(float dt) {
@@ -47,11 +46,11 @@ void Bullet::draw(SDL_Renderer* renderer, int cameraX) {
     int x = static_cast<int>(corpo->GetPosition().x * P2M) - cameraX;
     int y = static_cast<int>(corpo->GetPosition().y * P2M);
 
-    if (textura) {
+    if (sprite.valid()) {
         SDL_Rect retanguloRender = {x - TAMANHO / 2, y - TAMANHO / 2, TAMANHO, TAMANHO};
         b2Vec2 vel = corpo->GetLinearVelocity();
         SDL_RendererFlip flip = vel.x < 0.0f ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-        SDL_RenderCopyEx(renderer, textura, nullptr, &retanguloRender, 0.0, nullptr, flip);
+        sprite.draw(renderer, retanguloRender, flip);
     } else {
         if (doJogador) SDL_SetRenderDrawColor(renderer, 255, 200, 50, 255);
         else SDL_SetRenderDrawColor(renderer, 255, 80, 80, 255);

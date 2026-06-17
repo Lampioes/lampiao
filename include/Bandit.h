@@ -2,13 +2,13 @@
 #define BANDIT_H
 
 #include <SDL.h>
-#include <SDL_image.h>
 
 #include "DynamicObject.h"
+#include "Sprite.h"
 
 class Bandit : public DynamicObject {
 public:
-    Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id);
+    Bandit(b2World& world, SDL_Renderer* renderer, const b2Vec2& p, int id);
 
     void update(float dt) override;
     void draw(SDL_Renderer* renderer, int cameraX) override;
@@ -27,7 +27,7 @@ private:
     float temporizadorTiro = 0.0f;
     float recargaTiro = 2.5f;
     int vida = 3;
-    SDL_Texture* textura = nullptr;
+    Sprite sprite;
     bool viradoEsquerda = false;
     bool recarregando = false;
     float temporizadorRecarga = 0.0f;

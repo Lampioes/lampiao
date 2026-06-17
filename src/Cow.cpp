@@ -2,8 +2,8 @@
 #include "../include/ContactListener.h"
 #include <bit>
 
-Cow::Cow(b2World& world, float x, float y, int id)
-    : StaticObject(world, x, y), idVaca(id)
+Cow::Cow(b2World& world, const b2Vec2& p, int id)
+    : StaticObject(world, p), idVaca(id)
 {
     b2PolygonShape forma;
     forma.SetAsBox(LARGURA / (2.0f * P2M), ALTURA / (2.0f * P2M));

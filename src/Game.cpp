@@ -3,7 +3,10 @@
 #include <SDL_image.h>
 
 #include <algorithm>
+#include <Bandit.h>
+#include <Bullet.h>
 #include <cmath>
+#include <Cow.h>
 #include <cstdlib>
 
 int Game::run() {
@@ -105,7 +108,7 @@ bool Game::loadAssets() {
 
     const float jogadorInicioX = 300.0f;
     const float jogadorInicioY = terreno->getHeightAt(jogadorInicioX) - 80.0f;
-    auto jogadorPtr = std::make_unique<Player>(*mundo, renderizacao, jogadorInicioX, jogadorInicioY);
+    auto jogadorPtr = std::make_unique<Player>(*mundo, renderizacao, b2Vec2(jogadorInicioX, jogadorInicioY));
     jogador = jogadorPtr.get();
     objetos.push_back(std::move(jogadorPtr));
 
@@ -119,6 +122,8 @@ bool Game::loadAssets() {
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
     Mix_VolumeChunk(somPulo, MIX_MAX_VOLUME / 2);
 
+    if (musicaFundo) Mix_PlayMusic(musicaFundo, -1);
+
     setupLevel();
     return true;
 }
@@ -130,7 +135,7 @@ void Game::setupLevel() {
         const float aleatoridadeVcas = static_cast<float>((i * 137) % 200) - 100.0f;
         const float vacaX = espacoEntreVacas * (i + 0.5f) + aleatoridadeVcas;
         const float vacaY = terreno->getHeightAt(vacaX) - 25.0f;
-        objetos.push_back(std::make_unique<Cow>(*mundo, vacaX, vacaY, i));
+        objetos.push_back(std::make_unique<Cow>(*mundo, b2Vec2(vacaX, vacaY), i));
     }
 }
 
@@ -147,7 +152,10 @@ void Game::handleEvents() {
                 jogador->moveLeft();
                 break;
             case SDLK_SPACE:
-                jogador->jump();
+                if (jogador->isOnGround()) {
+                    jogador->jump();
+                    if (somPulo) Mix_PlayChannel(-1, somPulo, 0);
+                }
                 break;
             case SDLK_z:
                 if (jogador->canShoot()) {
@@ -156,7 +164,7 @@ void Game::handleEvents() {
                     float direcao = jogador->getShootDirX();
                     float spawnX = posicaoX + direcao * 80.0f;
                     paraAdicionar.push_back(std::make_unique<Bullet>(
-                        *mundo, spawnX, posicaoY, direcao, 0.0f, true, renderizacao));
+                        *mundo, b2Vec2(spawnX, posicaoY), b2Vec2(direcao, 0.0f), true, renderizacao));
                     jogador->resetShootCooldown();
                 }
                 break;
@@ -194,7 +202,7 @@ void Game::update(float dt) {
             const float by = bandido.getBody()->GetPosition().y * PIXELSPORMETRO;
             const float dirX = bandido.getShootDirX(jogadorPx);
             paraAdicionar.push_back(std::make_unique<Bullet>(
-                *mundo, bx + dirX * 30.0f, by, dirX, 0.0f, false, renderizacao));
+                *mundo, b2Vec2(bx + dirX * 30.0f, by), b2Vec2(dirX, 0.0f), false, renderizacao));
         }
     });
 
@@ -209,9 +217,7 @@ void Game::update(float dt) {
     flushSpawns();
     updateCamera();
 
-    if (!jogador->isAlive()) {
-        rodando = false;
-    }
+    if (!jogador->isAlive() || jogador->hasWon()) rodando = false;
 }
 
 void Game::updateCamera() {
@@ -226,7 +232,7 @@ void Game::spawnBandit() {
     const float spawnY = terreno->getHeightAt(spawnX) - 150.0f;
 
     paraAdicionar.push_back(std::make_unique<Bandit>(
-        *mundo, renderizacao, spawnX, spawnY, proxIdBandido++));
+        *mundo, renderizacao, b2Vec2(spawnX, spawnY), proxIdBandido++));
 }
 
 void Game::flushSpawns() {
@@ -267,14 +273,20 @@ void Game::processCollisions() {
 
         if (a->tipo == TipoEntidade::PLAYER && b->tipo == TipoEntidade::TERRAIN) jogador->setOnGround(true);
 
-        if (b->tipo == TipoEntidade::TERRAIN &&
-            (a->tipo == TipoEntidade::BULLET_PLAYER || a->tipo == TipoEntidade::BULLET_BANDIT)) {
+        if (b->tipo == TipoEntidade::TERRAIN && (a->tipo == TipoEntidade::BULLET_PLAYER || a->tipo == TipoEntidade::BULLET_BANDIT)) {
             forEach<Bullet>([](Bullet& bala) {
                 if (bala.isAlive()) bala.kill();
             });
         }
 
-        if (a->tipo == TipoEntidade::PLAYER && b->tipo == TipoEntidade::COW) jogador->captureCow();
+        if (a->tipo == TipoEntidade::PLAYER && b->tipo == TipoEntidade::COW) {
+            forEach<Cow>([&](Cow& vaca) {
+                if (vaca.getId() == b->id && vaca.isAlive()) {
+                    vaca.kill();
+                    jogador->captureCow();
+                }
+            });
+        }
     }
 }
 
@@ -297,9 +309,7 @@ void Game::render() {
 
     renderBackgrounds();
 
-    for (auto& o : objetos) {
-        o->draw(renderizacao, cameraX);
-    }
+    for (auto& o : objetos) o->draw(renderizacao, cameraX);
 
     renderHUD();
 

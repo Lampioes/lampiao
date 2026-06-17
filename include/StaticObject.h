@@ -5,7 +5,7 @@
 
 class StaticObject : public PhysicsObject {
 protected:
-    StaticObject(b2World& world, float x, float y);
+    StaticObject(b2World& world, const b2Vec2& p);
 };
 
 #endif

@@ -1,11 +1,11 @@
 #include "../include/DynamicObject.h"
 
-DynamicObject::DynamicObject(b2World& world, float x, float y, const DynamicBodyConfig& config)
-    : PhysicsObject(x, y)
+DynamicObject::DynamicObject(b2World& world, const b2Vec2& p, const DynamicBodyConfig& config)
+    : PhysicsObject(p)
 {
     b2BodyDef defCorpo;
     defCorpo.type = b2_dynamicBody;
-    defCorpo.position.Set(x / P2M, y / P2M);
+    defCorpo.position.Set(p.x / P2M, p.y / P2M);
     defCorpo.fixedRotation = config.fixedRotation;
     defCorpo.bullet = config.bullet;
     defCorpo.gravityScale = config.gravityScale;

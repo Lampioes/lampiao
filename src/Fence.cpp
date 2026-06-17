@@ -2,8 +2,8 @@
 #include "../include/ContactListener.h"
 #include <bit>
 
-Fence::Fence(b2World& world, float x, float y, float largura, float altura)
-    : StaticObject(world, x, y), largura(largura), altura(altura)
+Fence::Fence(b2World& world, const b2Vec2& p, float largura, float altura)
+    : StaticObject(world, p), largura(largura), altura(altura)
 {
     b2PolygonShape forma;
     forma.SetAsBox(largura / (2.0f * P2M), altura / (2.0f * P2M));

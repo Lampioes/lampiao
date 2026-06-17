@@ -7,7 +7,7 @@
 
 class Fence : public StaticObject {
 public:
-    Fence(b2World& world, float x, float y, float largura, float altura);
+    Fence(b2World& world, const b2Vec2& p, float largura, float altura);
 
     void draw(SDL_Renderer* renderer, int cameraX) override;
 

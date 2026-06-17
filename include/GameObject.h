@@ -18,8 +18,7 @@ public:
     float getPosY() const { return posicao.y; }
 
 protected:
-    GameObject(float x, float y) : posicao(x, y) {}
-    GameObject(const b2Vec2& p) : posicao(p) {}
+    explicit GameObject(const b2Vec2& p) : posicao(p) {}
 
     b2Vec2 posicao{0.0f, 0.0f};
 

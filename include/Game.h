@@ -9,11 +9,7 @@
 #include <SDL_mixer.h>
 #include <box2d/box2d.h>
 
-#include "Bandit.h"
-#include "Bullet.h"
 #include "ContactListener.h"
-#include "Cow.h"
-#include "Fence.h"
 #include "GameObject.h"
 #include "Player.h"
 #include "Terrain.h"
