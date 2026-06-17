@@ -118,6 +118,7 @@ bool Game::loadAssets() {
 
     musicaFundo = Mix_LoadMUS("../audio/bg.ogg");
     somPulo = Mix_LoadWAV("../audio/jump.wav");
+    somTiro = Mix_LoadWAV("../audio/freesound.wav");
 
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
     Mix_VolumeChunk(somPulo, MIX_MAX_VOLUME / 2);
@@ -163,8 +164,8 @@ void Game::handleEvents() {
                     float posicaoY = jogador->getBody()->GetPosition().y * PIXELSPORMETRO;
                     float direcao = jogador->getShootDirX();
                     float spawnX = posicaoX + direcao * 80.0f;
-                    paraAdicionar.push_back(std::make_unique<Bullet>(
-                        *mundo, b2Vec2(spawnX, posicaoY), b2Vec2(direcao, 0.0f), true, renderizacao));
+                    if (somTiro) Mix_PlayChannel(-1, somTiro, 0);
+                    paraAdicionar.push_back(std::make_unique<Bullet>(*mundo, b2Vec2(spawnX, posicaoY), b2Vec2(direcao, 0.0f), true, renderizacao));
                     jogador->resetShootCooldown();
                 }
                 break;
@@ -336,6 +337,13 @@ void Game::renderHUD() {
         SDL_Rect coracao = {20 + i * 30, 20, 24, 24};
         SDL_RenderFillRect(renderizacao, &coracao);
     }
+
+    forEach<Cow>([&](Cow& vaca) {
+        if (vaca.isAlive()) {
+            SDL_Rect vaquinhas_coletadas = {800 + vaca.getId() * 30, 10, 14, 14};
+            SDL_RenderFillRect(renderizacao, &vaquinhas_coletadas);
+        }
+    });
 
     SDL_SetRenderDrawColor(renderizacao, 255, 215, 0, 255);
     const int larguraBarraPontuacao = std::min(pontuacao, 500);
