@@ -136,10 +136,11 @@ void Game::setupLevel() {
         const float aleatoridadeVcas = static_cast<float>((i * 137) % 200) - 100.0f;
         const float vacaX = espacoEntreVacas * (i + 0.5f) + aleatoridadeVcas;
         const float vacaY = terreno->getHeightAt(vacaX) - 25.0f;
-        objetos.push_back(std::make_unique<Cow>(*mundo, b2Vec2(vacaX, vacaY), i));
+        objetos.push_back(std::make_unique<Cow>(*mundo, renderizacao, b2Vec2(vacaX, vacaY), i));
     }
 }
 
+//todo: mudar isso p game manager e o main loop tbm
 void Game::handleEvents() {
     SDL_Event evento;
     while (SDL_PollEvent(&evento)) {
@@ -209,8 +210,16 @@ void Game::update(float dt) {
 
     temporizadorSpawnBandido += dt;
     if (temporizadorSpawnBandido >= intervaloSpawnBandido) {
-        spawnBandit();
-        temporizadorSpawnBandido = 0.0f;
+        int bandidosVivos = 0;
+        forEach<Bandit>([&](Bandit& bandido) {
+            if (bandido.isAlive()) bandidosVivos++;
+        });
+        if (bandidosVivos < MAX_BANDIDOS_VIVOS) {
+            spawnBandit();
+            temporizadorSpawnBandido = 0.0f;
+        } else {
+            temporizadorSpawnBandido = intervaloSpawnBandido;
+        }
     }
 
     processCollisions();

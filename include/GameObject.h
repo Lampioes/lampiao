@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <box2d/box2d.h>
 
+//todo: arrumar game world e game manager
 class GameObject {
 public:
     virtual ~GameObject() = default;

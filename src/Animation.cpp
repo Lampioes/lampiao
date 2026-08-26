@@ -20,8 +20,7 @@ void Animation::setFrame(int index) {
     tempoAcumulado = 0.0f;
 }
 
-void Animation::draw(SDL_Renderer* renderer, const SDL_Rect& dst,
-                     SDL_RendererFlip flip) const {
+void Animation::draw(SDL_Renderer* renderer, const SDL_Rect& dst,SDL_RendererFlip flip) const {
     if (quadros.empty()) return;
     quadros[frameAtual].draw(renderer, dst, flip);
 }
