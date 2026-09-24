@@ -23,11 +23,11 @@ void Fence::takeDamage(int dano) {
     if (vida <= 0) destruida = true;
 }
 
-void Fence::draw(SDL_Renderer* renderer, int cameraX) {
+void Fence::draw(SDL_Renderer* renderer, const Camera& camera) {
     if (destruida) return;
 
-    int x = (int)(posicao.x) - cameraX - (int)(largura / 2);
-    int y = (int)(posicao.y) - (int)(altura / 2);
+    int x = (int)(posicao.x) - camera.x() - (int)(largura / 2);
+    int y = (int)(posicao.y) - camera.y() - (int)(altura / 2);
 
     int r = 139, g = 90 + (vida * 10), b = 43;
     SDL_SetRenderDrawColor(renderer, r, g, b, 255);

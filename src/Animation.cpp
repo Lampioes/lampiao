@@ -1,7 +1,7 @@
 #include "../include/Animation.h"
 
-void Animation::addFrame(SDL_Renderer* renderer, const char* path) {
-    quadros.emplace_back(renderer, path);
+void Animation::addFrame(const Sprite& sprite) {
+    quadros.push_back(&sprite);
 }
 
 void Animation::tick(float dt) {
@@ -20,7 +20,7 @@ void Animation::setFrame(int index) {
     tempoAcumulado = 0.0f;
 }
 
-void Animation::draw(SDL_Renderer* renderer, const SDL_Rect& dst,SDL_RendererFlip flip) const {
+void Animation::draw(SDL_Renderer* renderer, const SDL_Rect& dst, SDL_RendererFlip flip) const {
     if (quadros.empty()) return;
-    quadros[frameAtual].draw(renderer, dst, flip);
+    quadros[frameAtual]->draw(renderer, dst, flip);
 }

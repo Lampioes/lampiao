@@ -99,7 +99,10 @@ float Terrain::getHeightAt(float pixelX) const {
     return alturas[i0] * (1.0f - fracao) + alturas[i1] * fracao;
 }
 
-void Terrain::draw(SDL_Renderer* renderer, int cameraX) {
+void Terrain::draw(SDL_Renderer* renderer, const Camera& camera) {
+    const int cameraX = camera.x();
+    const int cameraY = camera.y();
+
     float inicioX = static_cast<float>(cameraX);
     float fimX = inicioX + TELA_W;
 
@@ -116,8 +119,8 @@ void Terrain::draw(SDL_Renderer* renderer, int cameraX) {
     for (int i = indiceInicio; i < indiceFim; ++i) {
         int x1 = static_cast<int>(i * espacamentoPontos) - cameraX;
         int x2 = static_cast<int>((i + 1) * espacamentoPontos) - cameraX;
-        int y1 = static_cast<int>(alturaEm(i));
-        int y2 = static_cast<int>(alturaEm(i + 1));
+        int y1 = static_cast<int>(alturaEm(i)) - cameraY;
+        int y2 = static_cast<int>(alturaEm(i + 1)) - cameraY;
 
         int yMin = std::min(y1, y2);
         int largura = x2 - x1;
@@ -139,8 +142,8 @@ void Terrain::draw(SDL_Renderer* renderer, int cameraX) {
     for (int i = indiceInicio; i < indiceFim; ++i) {
         int x1 = static_cast<int>(i * espacamentoPontos) - cameraX;
         int x2 = static_cast<int>((i + 1) * espacamentoPontos) - cameraX;
-        int y1 = static_cast<int>(alturaEm(i));
-        int y2 = static_cast<int>(alturaEm(i + 1));
+        int y1 = static_cast<int>(alturaEm(i)) - cameraY;
+        int y2 = static_cast<int>(alturaEm(i + 1)) - cameraY;
         SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
     }
 }

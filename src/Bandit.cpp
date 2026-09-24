@@ -3,9 +3,9 @@
 #include <bit>
 #include <cmath>
 
-Bandit::Bandit(b2World& world, SDL_Renderer* renderer, const b2Vec2& p, int id)
+Bandit::Bandit(b2World& world, const Sprite& sprite, const b2Vec2& p, int id)
     : DynamicObject(world, p, DynamicBodyConfig{.fixedRotation = true}), idBandido(id),
-      sprite(renderer, "../sprites/output_ixt5mp.gif")
+      sprite(&sprite)
 {
     b2PolygonShape forma;
     forma.SetAsBox(LARGURA / (2.0f * P2M), ALTURA / (2.0f * P2M));
@@ -52,25 +52,25 @@ bool Bandit::shouldShoot(float dt, float playerX) {
     return false;
 }
 
-void Bandit::draw(SDL_Renderer* renderer, int cameraX) {
+void Bandit::draw(SDL_Renderer* renderer, const Camera& camera) {
     if (!corpo) return;
 
-    int x = static_cast<int>(corpo->GetPosition().x * P2M) - cameraX - LARGURA / 2;
-    int y = static_cast<int>(corpo->GetPosition().y * P2M) - ALTURA / 2;
+    retanguloRender.x = static_cast<int>(corpo->GetPosition().x * P2M) - camera.x() - LARGURA / 2;
+    retanguloRender.y = static_cast<int>(corpo->GetPosition().y * P2M) - camera.y() - ALTURA / 2;
+
+    const int x = retanguloRender.x;
+    const int y = retanguloRender.y;
 
     if (!vivo) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 100, 100, 100, 80);
-        SDL_Rect r = {x, y, LARGURA, ALTURA};
-        SDL_RenderFillRect(renderer, &r);
+        SDL_RenderFillRect(renderer, &retanguloRender);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
         return;
     }
 
-    SDL_Rect ondecolocar = {x, y, LARGURA, ALTURA};
     SDL_RendererFlip virar = viradoEsquerda ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-
-    sprite.draw(renderer, ondecolocar, virar);
+    sprite->draw(renderer, retanguloRender, virar);
 
     float razaoVida = vida / 3.0f;
     SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);

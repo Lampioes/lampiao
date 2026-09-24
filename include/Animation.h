@@ -11,7 +11,8 @@ public:
     Animation() = default;
     explicit Animation(float frameDuration) : duracaoFrame(frameDuration) {}
 
-    void addFrame(SDL_Renderer* renderer, const char* path);
+    // recebe a sprite ja carregada (a SpriteCatalog e a dona dela)
+    void addFrame(const Sprite& sprite);
 
     void tick(float dt);
     void reset() { tempoAcumulado = 0.0f; frameAtual = 0; }
@@ -25,7 +26,7 @@ public:
     bool empty() const { return quadros.empty(); }
 
 private:
-    std::vector<Sprite> quadros;
+    std::vector<const Sprite*> quadros;
     int frameAtual = 0;
     float tempoAcumulado = 0.0f;
     float duracaoFrame = 0.15f;

@@ -4,13 +4,17 @@
 #include <SDL.h>
 #include <box2d/box2d.h>
 
-//todo: arrumar game world e game manager
+#include "Camera.h"
+
 class GameObject {
 public:
     virtual ~GameObject() = default;
 
+    // a game manager repassa os eventos pra cena e a cena repassa pros objetos
+    virtual void handleEvent(const SDL_Event& /*evento*/) {}
+
     virtual void update(float /*dt*/) {}
-    virtual void draw(SDL_Renderer* renderer, int cameraX) = 0;
+    virtual void draw(SDL_Renderer* renderer, const Camera& camera) = 0;
     virtual bool isAlive() const { return true; }
     virtual void destroyBody(b2World& /*world*/) {}
 

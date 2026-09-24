@@ -2,9 +2,8 @@
 #include "../include/ContactListener.h"
 #include <bit>
 
-Cow::Cow(b2World& world, SDL_Renderer* renderer, const b2Vec2& p, int id)
-    : StaticObject(world, p), idVaca(id),
-      sprite(renderer, "../sprites/vaca.png")
+Cow::Cow(b2World& world, const Sprite& sprite, const b2Vec2& p, int id)
+    : StaticObject(world, p), idVaca(id), sprite(&sprite)
 {
     b2PolygonShape forma;
     forma.SetAsBox(LARGURA / (2.0f * P2M), ALTURA / (2.0f * P2M));
@@ -19,13 +18,11 @@ Cow::Cow(b2World& world, SDL_Renderer* renderer, const b2Vec2& p, int id)
     corpo->CreateFixture(&defFixacao);
 }
 
-void Cow::draw(SDL_Renderer* renderer, int cameraX) {
+void Cow::draw(SDL_Renderer* renderer, const Camera& camera) {
     if (!viva) return;
 
-    int x = static_cast<int>(corpo->GetPosition().x * P2M) - cameraX - LARGURA / 2;
-    int y = static_cast<int>(corpo->GetPosition().y * P2M) - ALTURA / 2;
+    retanguloRender.x = static_cast<int>(corpo->GetPosition().x * P2M) - camera.x() - LARGURA / 2;
+    retanguloRender.y = static_cast<int>(corpo->GetPosition().y * P2M) - camera.y() - ALTURA / 2;
 
-    //todo: fazer isso tbm no construtor da vaca (e nos lugar que usam draw)
-    SDL_Rect ondecolocar = {x, y, LARGURA, ALTURA};
-    sprite.draw(renderer, ondecolocar);
+    sprite->draw(renderer, retanguloRender);
 }

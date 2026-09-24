@@ -12,7 +12,8 @@ struct SDLTextureDeleter {
 
 using TexturaPtr = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
 
-//todo: criar uma sprite pra cada um dos sprites e logo na classe dele já passar a textura do sdl dele
+// uma sprite por arquivo de sprite: quem carrega todas e a SpriteCatalog,
+// e as classes ja recebem a sprite pronta (com a textura do sdl) no construtor
 class Sprite {
 public:
     Sprite() = default;

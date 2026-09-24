@@ -3,10 +3,10 @@
 #include <bit>
 #include <cmath>
 
-Bullet::Bullet(b2World& world, const b2Vec2& p, const b2Vec2& dir, bool doJogador, SDL_Renderer* renderer)
+Bullet::Bullet(b2World& world, const Sprite& sprite, const b2Vec2& p, const b2Vec2& dir, bool doJogador)
     : DynamicObject(world, p, DynamicBodyConfig{.bullet = true, .gravityScale = 0.0f}),
       doJogador(doJogador),
-      sprite(renderer, "../sprites/bullet.png")
+      sprite(&sprite)
 {
     b2Vec2 direcao = dir;
     float comprimento = std::sqrt(direcao.x * direcao.x + direcao.y * direcao.y);
@@ -40,21 +40,19 @@ void Bullet::update(float dt) {
     }
 }
 
-void Bullet::draw(SDL_Renderer* renderer, int cameraX) {
+void Bullet::draw(SDL_Renderer* renderer, const Camera& camera) {
     if (!viva || !corpo) return;
 
-    int x = static_cast<int>(corpo->GetPosition().x * P2M) - cameraX;
-    int y = static_cast<int>(corpo->GetPosition().y * P2M);
+    retanguloRender.x = static_cast<int>(corpo->GetPosition().x * P2M) - camera.x() - TAMANHO / 2;
+    retanguloRender.y = static_cast<int>(corpo->GetPosition().y * P2M) - camera.y() - TAMANHO / 2;
 
-    if (sprite.valid()) {
-        SDL_Rect retanguloRender = {x - TAMANHO / 2, y - TAMANHO / 2, TAMANHO, TAMANHO};
+    if (sprite->valid()) {
         b2Vec2 vel = corpo->GetLinearVelocity();
         SDL_RendererFlip flip = vel.x < 0.0f ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-        sprite.draw(renderer, retanguloRender, flip);
+        sprite->draw(renderer, retanguloRender, flip);
     } else {
         if (doJogador) SDL_SetRenderDrawColor(renderer, 255, 200, 50, 255);
         else SDL_SetRenderDrawColor(renderer, 255, 80, 80, 255);
-        SDL_Rect retangulo = {x - TAMANHO / 2, y - TAMANHO / 2, TAMANHO, TAMANHO};
-        SDL_RenderFillRect(renderer, &retangulo);
+        SDL_RenderFillRect(renderer, &retanguloRender);
     }
 }

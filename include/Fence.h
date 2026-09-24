@@ -9,7 +9,7 @@ class Fence : public StaticObject {
 public:
     Fence(b2World& world, const b2Vec2& p, float largura, float altura);
 
-    void draw(SDL_Renderer* renderer, int cameraX) override;
+    void draw(SDL_Renderer* renderer, const Camera& camera) override;
 
     bool isDestroyed() const { return destruida; }
     void takeDamage(int dano);

@@ -1,9 +1,9 @@
-#include "../include/Game.h"
+#include "../include/GameManager.h"
 
 int main(int argc, char** argv) {
     (void)argc;
     (void)argv;
 
-    Game game;
-    return game.run();
+    GameManager gerenciador;
+    return gerenciador.run();
 }

@@ -18,7 +18,7 @@ public:
 
     Terrain(b2World& world);
 
-    void draw(SDL_Renderer* renderer, int cameraX) override;
+    void draw(SDL_Renderer* renderer, const Camera& camera) override;
 
     float getHeightAt(float pixelX) const;
 

@@ -8,11 +8,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_mixer REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 find_package(box2d REQUIRED)
 
 add_executable(JogoVelhoOeste
     src/main.cpp
-    src/Game.cpp
+    src/GameManager.cpp
+    src/GameWorld.cpp
+    src/MenuScene.cpp
     src/PhysicsObject.cpp
     src/StaticObject.cpp
     src/DynamicObject.cpp
@@ -25,6 +28,7 @@ add_executable(JogoVelhoOeste
     src/ContactListener.cpp
     src/Sprite.cpp
     src/Animation.cpp
+    src/SpriteCatalog.cpp
 )
 
 target_include_directories(JogoVelhoOeste
@@ -38,6 +42,7 @@ target_link_libraries(JogoVelhoOeste
         SDL2::SDL2
         SDL2_image::SDL2_image
         SDL2_mixer::SDL2_mixer
+        SDL2_ttf::SDL2_ttf
         box2d::box2d
 )
 
