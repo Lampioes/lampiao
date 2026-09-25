@@ -1,107 +1,101 @@
 #include "../include/Bandit.h"
 #include "../include/ContactListener.h"
+#include <bit>
 #include <cmath>
 
-Bandit::Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id) : banditId(id) {
-    b2BodyDef bodyDef;
-    bodyDef.type = b2_dynamicBody;
-    bodyDef.position.Set(x / P2M, y / P2M);
-    bodyDef.fixedRotation = true;
-    body = world.CreateBody(&bodyDef);
+Bandit::Bandit(b2World& world, const Sprite& sprite, const b2Vec2& p, int id)
+    : DynamicObject(world, p, DynamicBodyConfig{.fixedRotation = true}), idBandido(id),
+      sprite(&sprite)
+{
+    b2PolygonShape forma;
+    forma.SetAsBox(LARGURA / (2.0f * P2M), ALTURA / (2.0f * P2M));
 
-    b2PolygonShape shape;
-    shape.SetAsBox(WIDTH / (2.0f * P2M), HEIGHT / (2.0f * P2M));
+    b2FixtureDef defFixacao;
+    defFixacao.shape = &forma;
+    defFixacao.density = 1.0f;
+    defFixacao.friction = 0.3f;
 
-    b2FixtureDef fixDef;
-    fixDef.shape = &shape;
-    fixDef.density = 1.0f;
-    fixDef.friction = 0.3f;
+    DadosEntidade* dados = new DadosEntidade{TipoEntidade::BANDIT, id};
+    defFixacao.userData.pointer = std::bit_cast<uintptr_t>(dados);
 
-    EntityData* data = new EntityData{EntityType::BANDIT, id};
-    fixDef.userData.pointer = reinterpret_cast<uintptr_t>(data);
-
-    body->CreateFixture(&fixDef);
-
-    texture = IMG_LoadTexture(renderer, "../sprites/output_ixt5mp.gif");
+    corpo->CreateFixture(&defFixacao);
 }
 
 void Bandit::update(float dt) {
-    if (!alive) {
-        return;
-    }
+    if (!vivo) return;
+    corpo->SetLinearVelocity(b2Vec2(0, corpo->GetLinearVelocity().y));
 
-    (void)dt;
-}
-
-void Bandit::draw(SDL_Renderer* renderer, int cameraX) {
-    if (!body) return;
-
-    int x = static_cast<int>(body->GetPosition().x * P2M) - cameraX - WIDTH / 2;
-    int y = static_cast<int>(body->GetPosition().y * P2M) - HEIGHT / 2;
-
-    if (!alive) {
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 80);
-        SDL_Rect r = {x, y, WIDTH, HEIGHT};
-        SDL_RenderFillRect(renderer, &r);
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-        return;
-    }
-
-    SDL_Rect dst = {x, y, WIDTH, HEIGHT};
-    SDL_RendererFlip flip = facingLeft ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-
-    if (texture) {
-        SDL_RenderCopyEx(renderer, texture, NULL, &dst, 0.0, NULL, flip);
+    if (recarregando) {
+        temporizadorRecarga += dt;
+        if (temporizadorRecarga >= TEMPO_RECARGA) {
+            recarregando = false;
+            temporizadorRecarga = 0.0f;
+            temporizadorTiro = 0.0f;
+        }
     } else {
-        SDL_SetRenderDrawColor(renderer, 139, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &dst);
+        temporizadorTiro += dt;
     }
-
-    float hpRatio = health / 3.0f;
-    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
-    SDL_Rect bgBar = {x, y - 20, WIDTH, 4};
-    SDL_RenderFillRect(renderer, &bgBar);
-    SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
-    SDL_Rect hpBar = {x, y - 20, static_cast<int>(WIDTH * hpRatio), 4};
-    SDL_RenderFillRect(renderer, &hpBar);
 }
 
-bool Bandit::shouldShoot(float dt) {
-    if (!alive) return false;
-    shootTimer += dt;
-    if (shootTimer >= shootCooldown) {
-        shootTimer = 0.0f;
+bool Bandit::shouldShoot(float dt, float playerX) {
+    if (!vivo || recarregando) return false;
+
+    float meuX = corpo->GetPosition().x * P2M;
+    if (std::abs(playerX - meuX) > ALCANCE_TIRO) return false;
+
+    if (temporizadorTiro >= recargaTiro) {
+        temporizadorTiro = 0.0f;
+        recarregando = true;
+        temporizadorRecarga = 0.0f;
         return true;
     }
     return false;
 }
 
+void Bandit::draw(SDL_Renderer* renderer, const Camera& camera) {
+    if (!corpo) return;
+
+    retanguloRender.x = static_cast<int>(corpo->GetPosition().x * P2M) - camera.x() - LARGURA / 2;
+    retanguloRender.y = static_cast<int>(corpo->GetPosition().y * P2M) - camera.y() - ALTURA / 2;
+
+    const int x = retanguloRender.x;
+    const int y = retanguloRender.y;
+
+    if (!vivo) {
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 100, 100, 100, 80);
+        SDL_RenderFillRect(renderer, &retanguloRender);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+        return;
+    }
+
+    SDL_RendererFlip virar = viradoEsquerda ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    sprite->draw(renderer, retanguloRender, virar);
+
+    float razaoVida = vida / 3.0f;
+    SDL_SetRenderDrawColor(renderer, 60, 60, 60, 255);
+    SDL_Rect barraFundo = {x, y - 20, LARGURA, 4};
+    SDL_RenderFillRect(renderer, &barraFundo);
+    SDL_SetRenderDrawColor(renderer, 255, 50, 50, 255);
+    SDL_Rect barraVida = {x, y - 20, (int)(LARGURA * razaoVida), 4};
+    SDL_RenderFillRect(renderer, &barraVida);
+
+    if (recarregando) {
+        float razaoRecarga = temporizadorRecarga / TEMPO_RECARGA;
+        SDL_SetRenderDrawColor(renderer, 50, 50, 200, 255);
+        SDL_Rect barraRecarga = {x, y - 26, (int)(LARGURA * razaoRecarga), 3};
+        SDL_RenderFillRect(renderer, &barraRecarga);
+    }
+}
+
 float Bandit::getShootDirX(float playerX) {
-    if (!body) return 1.0f;
-    float myX = body->GetPosition().x * P2M;
-    facingLeft = (playerX < myX);
-    return (playerX > myX) ? 1.0f : -1.0f;
+    if (!corpo) return 1.0f;
+    float meuX = corpo->GetPosition().x * P2M;
+    viradoEsquerda = (playerX < meuX);
+    return (playerX > meuX) ? 1.0f : -1.0f;
 }
 
 void Bandit::takeDamage() {
-    health--;
-    if (health <= 0) {
-        alive = false;
-    }
-}
-
-void Bandit::destroyBody(b2World& world) {
-    if (body) {
-        b2Fixture* f = body->GetFixtureList();
-        while (f) {
-            auto ptr = f->GetUserData().pointer;
-            if (ptr) {
-                delete reinterpret_cast<EntityData*>(ptr);
-            }
-            f = f->GetNext();
-        }
-        world.DestroyBody(body);
-        body = nullptr;
-    }
+    vida--;
+    if (vida <= 0) vivo = false;
 }

@@ -3,3 +3,5 @@
 /.idea/
 /.DS_Store
 /sprites/.DS_Store
+*.o
+/build

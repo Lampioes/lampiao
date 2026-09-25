@@ -5,7 +5,7 @@
 #include <vector>
 #include <utility>
 
-enum class EntityType {
+enum class TipoEntidade {
     PLAYER,
     BULLET_PLAYER,
     BULLET_BANDIT,
@@ -16,24 +16,24 @@ enum class EntityType {
     TERRAIN
 };
 
-struct EntityData {
-    EntityType type;
+struct DadosEntidade {
+    TipoEntidade tipo;
     int id;
 };
 
-struct CollisionPair {
-    EntityData* a;
-    EntityData* b;
+struct ParColisao {
+    DadosEntidade* a;
+    DadosEntidade* b;
 };
 
 class GameContactListener : public b2ContactListener {
 public:
     void BeginContact(b2Contact* contact) override;
 
-    std::vector<CollisionPair> getAndClearCollisions();
+    std::vector<ParColisao> getAndClearCollisions();
 
 private:
-    std::vector<CollisionPair> pendingCollisions;
+    std::vector<ParColisao> colisoesPendentes;
 };
 
 #endif

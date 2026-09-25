@@ -1,3 +1,0 @@
-/mnt/c/IFPR/4ano/topicos/lampioes/lampiao/build/CMakeFiles/JogoVelhoOeste.dir
-/mnt/c/IFPR/4ano/topicos/lampioes/lampiao/build/CMakeFiles/edit_cache.dir
-/mnt/c/IFPR/4ano/topicos/lampioes/lampiao/build/CMakeFiles/rebuild_cache.dir

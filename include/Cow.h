@@ -2,26 +2,27 @@
 #define COW_H
 
 #include <SDL.h>
-#include <box2d/box2d.h>
 
-class Cow {
+#include "Sprite.h"
+#include "StaticObject.h"
+
+class Cow : public StaticObject {
 public:
-    Cow(b2World& world, float x, float y, int id);
-    ~Cow() = default;
+    Cow(b2World& world, const Sprite& sprite, const b2Vec2& p, int id);
 
-    void draw(SDL_Renderer* renderer, int cameraX);
-    b2Body* getBody() const { return body; }
-    int getId() const { return cowId; }
-
-    void destroyBody(b2World& world);
+    void draw(SDL_Renderer* renderer, const Camera& camera) override;
+    int getId() const { return idVaca; }
+    bool isAlive() const override { return viva; }
+    void kill() { viva = false; }
 
 private:
-    b2Body* body = nullptr;
-    int cowId;
+    static constexpr int LARGURA = 120;
+    static constexpr int ALTURA = 90;
 
-    static constexpr float P2M = 30.0f;
-    static constexpr int WIDTH = 60;
-    static constexpr int HEIGHT = 40;
+    int idVaca;
+    bool viva = true;
+    const Sprite* sprite;
+    SDL_Rect retanguloRender{0, 0, LARGURA, ALTURA};
 };
 
 #endif

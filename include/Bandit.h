@@ -2,40 +2,41 @@
 #define BANDIT_H
 
 #include <SDL.h>
-#include <SDL_image.h>
-#include <box2d/box2d.h>
 
-class Bandit {
+#include "DynamicObject.h"
+#include "Sprite.h"
+
+class Bandit : public DynamicObject {
 public:
-    Bandit(b2World& world, SDL_Renderer* renderer, float x, float y, int id);
-    ~Bandit() = default;
+    Bandit(b2World& world, const Sprite& sprite, const b2Vec2& p, int id);
 
-    void update(float dt);
-    void draw(SDL_Renderer* renderer, int cameraX);
+    void update(float dt) override;
+    void draw(SDL_Renderer* renderer, const Camera& camera) override;
 
-    bool isAlive() const { return alive; }
+    bool isAlive() const override { return vivo; }
     void takeDamage();
-    b2Body* getBody() const { return body; }
-    int getId() const { return banditId; }
+    int getId() const { return idBandido; }
 
-    bool shouldShoot(float dt);
     float getShootDirX(float playerX);
 
-    void destroyBody(b2World& world);
+    bool shouldShoot(float dt, float playerx);
 
 private:
-    b2Body* body = nullptr;
-    int banditId;
-    bool alive = true;
-    float shootTimer = 0.0f;
-    float shootCooldown = 2.5f;
-    int health = 3;
-    SDL_Texture* texture = nullptr;
-    bool facingLeft = false;
+    static constexpr float TEMPO_RECARGA = 1.5f;
+    static constexpr float ALCANCE_TIRO = 400.0f;
+    static constexpr int LARGURA = 150;
+    static constexpr int ALTURA = 180;
 
-    static constexpr float P2M = 30.0f;
-    static constexpr int WIDTH = 150;
-    static constexpr int HEIGHT = 180;
+    int idBandido;
+    bool vivo = true;
+    float temporizadorTiro = 0.0f;
+    float recargaTiro = 2.5f;
+    int vida = 3;
+    const Sprite* sprite;
+    bool viradoEsquerda = false;
+    bool recarregando = false;
+    float temporizadorRecarga = 0.0f;
+    SDL_Rect retanguloRender{0, 0, LARGURA, ALTURA};
 };
 
 #endif
