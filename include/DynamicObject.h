@@ -11,7 +11,7 @@ struct DynamicBodyConfig {
 
 class DynamicObject : public PhysicsObject {
 protected:
-    DynamicObject(b2World& world, float x, float y, const DynamicBodyConfig& config = {});
+    DynamicObject(b2World& world, const b2Vec2& p, const DynamicBodyConfig& config = {});
 };
 
 #endif

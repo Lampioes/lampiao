@@ -1,11 +1,11 @@
 #include "../include/Player.h"
 #include "../include/ContactListener.h"
-#include <SDL_image.h>
 #include <bit>
 #include <cmath>
 
-Player::Player(b2World& world, SDL_Renderer* renderer, float x, float y)
-    : DynamicObject(world, x, y, DynamicBodyConfig{.fixedRotation = true})
+Player::Player(b2World& world, const SpriteCatalog& sprites, const b2Vec2& p)
+    : DynamicObject(world, p, DynamicBodyConfig{.fixedRotation = true}),
+      animacaoCorrer(0.15f)
 {
     b2PolygonShape forma;
     forma.SetAsBox(1.0f, 1.0f);
@@ -20,13 +20,56 @@ Player::Player(b2World& world, SDL_Renderer* renderer, float x, float y)
 
     corpo->CreateFixture(&defFixacao);
 
-    texturas.push_back(IMG_LoadTexture(renderer, "../sprites/run-1.png"));
-    texturas.push_back(IMG_LoadTexture(renderer, "../sprites/run-2-e-parado.png"));
-    texturas.push_back(IMG_LoadTexture(renderer, "../sprites/run-3.png"));
+    animacaoCorrer.addFrame(sprites.get(SpriteId::CORRER_1));
+    animacaoCorrer.addFrame(sprites.get(SpriteId::CORRER_2));
+    animacaoCorrer.addFrame(sprites.get(SpriteId::CORRER_3));
+}
+
+void Player::handleEvent(const SDL_Event& evento) {
+    if (evento.type == SDL_KEYDOWN) {
+        switch (evento.key.keysym.sym) {
+        case SDLK_RIGHT:
+            moveRight();
+            break;
+        case SDLK_LEFT:
+            moveLeft();
+            break;
+        case SDLK_SPACE:
+            if (noChao) {
+                jump();
+                pulouAgora = true;
+            }
+            break;
+        case SDLK_z:
+            if (canShoot()) {
+                resetShootCooldown();
+                atirouAgora = true;
+            }
+            break;
+        }
+    } else if (evento.type == SDL_KEYUP) {
+        switch (evento.key.keysym.sym) {
+        case SDLK_RIGHT:
+        case SDLK_LEFT:
+            stop();
+            break;
+        }
+    }
+}
+
+bool Player::consumeJumped() {
+    const bool pulou = pulouAgora;
+    pulouAgora = false;
+    return pulou;
+}
+
+bool Player::consumeShot() {
+    const bool atirou = atirouAgora;
+    atirouAgora = false;
+    return atirou;
 }
 
 void Player::moveRight() {
-    if (!noChao) return; // bloqueia mudança de direção no ar
     if (emMovimento) return;
     float xAtual = corpo->GetPosition().x;
     alvoX = std::min(xAtual + DISTANCIA_MOVIMENTO, MAX_X);
@@ -35,7 +78,6 @@ void Player::moveRight() {
 }
 
 void Player::moveLeft() {
-    if (!noChao) return; // bloqueia mudança de direção no ar
     if (emMovimento) return;
     float xAtual = corpo->GetPosition().x;
     alvoX = std::max(xAtual - DISTANCIA_MOVIMENTO, MIN_X);
@@ -59,23 +101,20 @@ void Player::takeDamage() {
 }
 
 void Player::clampPosition() {
-    b2Vec2 posicao = corpo->GetPosition();
-    if (posicao.x < MIN_X) {
-        corpo->SetTransform(b2Vec2(MIN_X, posicao.y), 0);
+    b2Vec2 posicaoAtual = corpo->GetPosition();
+    if (posicaoAtual.x < MIN_X) {
+        corpo->SetTransform(b2Vec2(MIN_X, posicaoAtual.y), 0);
         corpo->SetLinearVelocity(b2Vec2(0, corpo->GetLinearVelocity().y));
         emMovimento = false;
-    } else if (posicao.x > MAX_X) {
-        corpo->SetTransform(b2Vec2(MAX_X, posicao.y), 0);
+    } else if (posicaoAtual.x > MAX_X) {
+        corpo->SetTransform(b2Vec2(MAX_X, posicaoAtual.y), 0);
         corpo->SetLinearVelocity(b2Vec2(0, corpo->GetLinearVelocity().y));
         emMovimento = false;
     }
 }
 
 void Player::update(float dt) {
-
-    if (recargaTiro > 0.0f) {
-        recargaTiro -= dt;
-    }
+    if (recargaTiro > 0.0f) recargaTiro -= dt;
 
     if (emMovimento) {
         float xAtual = corpo->GetPosition().x;
@@ -108,23 +147,20 @@ void Player::update(float dt) {
 
     b2Vec2 velocidade = corpo->GetLinearVelocity();
     if (std::abs(velocidade.x) > 0.1f) {
-        frameAtual = (SDL_GetTicks() / 500) % 3;
+        animacaoCorrer.tick(dt);
     } else {
-        frameAtual = 1;
+        animacaoCorrer.setFrame(FRAME_PARADO);
     }
 }
 
-void Player::draw(SDL_Renderer* renderer, int cameraX) {
-    retanguloRender.x = static_cast<int>(corpo->GetPosition().x * P2M) - 75 - cameraX;
-    retanguloRender.y = static_cast<int>(corpo->GetPosition().y * P2M) - 75;
-    retanguloRender.w = 150;
-    retanguloRender.h = 150;
+void Player::draw(SDL_Renderer* renderer, const Camera& camera) {
+    retanguloRender.x = static_cast<int>(corpo->GetPosition().x * P2M) - camera.x() - LARGURA / 2;
+    retanguloRender.y = static_cast<int>(corpo->GetPosition().y * P2M) - camera.y() - ALTURA / 2;
 
     SDL_RendererFlip flip = viradoEsquerda ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
 
-
-    if (!texturas.empty() && texturas[frameAtual]) {
-        SDL_RenderCopyEx(renderer, texturas[frameAtual], NULL, &retanguloRender, 0.0, NULL, flip);
+    if (!animacaoCorrer.empty()) {
+        animacaoCorrer.draw(renderer, retanguloRender, flip);
     } else {
         SDL_SetRenderDrawColor(renderer, 50, 130, 50, 255);
         SDL_Rect retanguloCorpo = {retanguloRender.x + 30, retanguloRender.y + 20, 90, 110};
@@ -140,10 +176,8 @@ void Player::draw(SDL_Renderer* renderer, int cameraX) {
         SDL_Rect coracao = {retanguloRender.x + i * 14, retanguloRender.y - 20, 12, 12};
         SDL_RenderFillRect(renderer, &coracao);
     }
-
 }
 
 void Player::captureCow() {
-
+    if (vacasCapturadas < vacasCapturadasPraGanharOJogo) vacasCapturadas++;
 }
-

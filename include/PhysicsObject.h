@@ -12,7 +12,7 @@ public:
     virtual void destroyBody(b2World& world);
 
 protected:
-    PhysicsObject(float x, float y) : GameObject(x, y) {}
+    explicit PhysicsObject(const b2Vec2& p) : GameObject(p) {}
 
     b2Body* corpo = nullptr;
 };

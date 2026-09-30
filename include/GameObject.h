@@ -4,12 +4,17 @@
 #include <SDL.h>
 #include <box2d/box2d.h>
 
+#include "Camera.h"
+
 class GameObject {
 public:
     virtual ~GameObject() = default;
 
+    // a game manager repassa os eventos pra cena e a cena repassa pros objetos
+    virtual void handleEvent(const SDL_Event& /*evento*/) {}
+
     virtual void update(float /*dt*/) {}
-    virtual void draw(SDL_Renderer* renderer, int cameraX) = 0;
+    virtual void draw(SDL_Renderer* renderer, const Camera& camera) = 0;
     virtual bool isAlive() const { return true; }
     virtual void destroyBody(b2World& /*world*/) {}
 
@@ -18,8 +23,7 @@ public:
     float getPosY() const { return posicao.y; }
 
 protected:
-    GameObject(float x, float y) : posicao(x, y) {}
-    GameObject(const b2Vec2& p) : posicao(p) {}
+    explicit GameObject(const b2Vec2& p) : posicao(p) {}
 
     b2Vec2 posicao{0.0f, 0.0f};
 
