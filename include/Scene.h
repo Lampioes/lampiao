@@ -12,7 +12,8 @@ enum class TipoCena {
     MENU,
     JOGO,
     PAUSA,
-    CONTROLES
+    CONTROLES,
+    HISTORICO
 };
 
 enum class AcaoCena {
@@ -35,6 +36,7 @@ struct PedidoCena {
 };
 
 struct ContextoJogo {
+    std::string caminhoHistorico;
     SDL_Renderer* renderizacao = nullptr;
     const SpriteCatalog* sprites = nullptr;
     TTF_Font* fonteTitulo = nullptr;

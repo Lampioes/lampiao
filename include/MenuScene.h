@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Scene.h"
+#include "ScoreHistory.h"
 
 
 
@@ -33,10 +34,14 @@ private:
 
     int opcaoSelecionada = 0;
     float tempo = 0.0f;
+    ScoreHistory historico;
+    int paginaHistorico = 0;
+    static constexpr int REGISTROS_POR_PAGINA = 6;
 
     void montarMenuPrincipal();
     void montarPausa();
     void montarControles();
+    void montarHistorico();
 
     void desenharFundo();
     void desenharOpcoes(int inicioY);

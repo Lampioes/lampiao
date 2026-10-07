@@ -16,6 +16,7 @@ add_executable(JogoVelhoOeste
     src/GameManager.cpp
     src/GameWorld.cpp
     src/MenuScene.cpp
+    src/ScoreHistory.cpp
     src/PhysicsObject.cpp
     src/StaticObject.cpp
     src/DynamicObject.cpp

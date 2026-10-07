@@ -13,6 +13,7 @@
 #include "GameObject.h"
 #include "Player.h"
 #include "Scene.h"
+#include "ScoreHistory.h"
 #include "Terrain.h"
 
 class GameWorld : public Scene {
@@ -49,6 +50,12 @@ private:
     int pontuacao = 0;
     bool terminado = false;
     bool venceu = false;
+    ScoreHistory historico;
+    std::string nomeJogador;
+    std::string mensagemHistorico;
+    bool pontuacaoSalva = false;
+
+    void handleFimDeJogo(const SDL_Event& evento);
 
     void loadSounds();
     void setupLevel();

@@ -47,6 +47,14 @@ int GameManager::run() {
 
 bool GameManager::init() {
     if (!initSDL()) return false;
+    // Pasta de dados do usuario: independe da pasta de onde o jogo foi aberto.
+    char* pasta = SDL_GetPrefPath("Lampioes", "Lampioes");
+    if (pasta) {
+        caminhoHistorico = std::string(pasta) + "pontuacoes.txt";
+        SDL_free(pasta);
+    } else {
+        SDL_Log("Nao foi possivel localizar a pasta do historico: %s", SDL_GetError());
+    }
     if (!initAudio()) return false;
     if (!initFontes()) return false;
     loadAssets();
@@ -135,6 +143,7 @@ void GameManager::loadAssets() {
 
 ContextoJogo GameManager::montarContexto() const {
     ContextoJogo contexto;
+    contexto.caminhoHistorico = caminhoHistorico;
     contexto.renderizacao = renderizacao;
     contexto.sprites = &sprites;
     contexto.fonteTitulo = fonteTitulo;
