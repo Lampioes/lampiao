@@ -32,6 +32,7 @@ private:
     std::vector<std::unique_ptr<Scene>> pilha;
 
     bool rodando = true;
+    std::string caminhoHistorico;
 
     bool init();
     bool initSDL();

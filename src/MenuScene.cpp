@@ -2,13 +2,18 @@
 
 #include <cmath>
 
-MenuScene::MenuScene(const ContextoJogo& contexto, TipoCena tipo) : Scene(contexto), tipo(tipo) {
+MenuScene::MenuScene(const ContextoJogo& contexto, TipoCena tipo)
+    : Scene(contexto), tipo(tipo), historico(contexto.caminhoHistorico) {
     switch (tipo) {
     case TipoCena::PAUSA:
         montarPausa();
         break;
     case TipoCena::CONTROLES:
         montarControles();
+        break;
+    case TipoCena::HISTORICO:
+        historico.carregar();
+        montarHistorico();
         break;
     default:
         montarMenuPrincipal();
@@ -23,6 +28,7 @@ void MenuScene::montarMenuPrincipal() {
     opcoes = {
         {"JOGAR", PedidoCena::trocar(TipoCena::JOGO)},
         {"CONTROLES", PedidoCena::empilhar(TipoCena::CONTROLES)},
+        {"HISTÓRICO", PedidoCena::empilhar(TipoCena::HISTORICO)},
         {"SAIR", PedidoCena::sair()},
     };
 }
@@ -57,6 +63,14 @@ void MenuScene::montarControles() {
 void MenuScene::handleEvent(const SDL_Event& evento) {
     if (evento.type != SDL_KEYDOWN) return;
 
+    if (tipo == TipoCena::HISTORICO) {
+        const int total = static_cast<int>(historico.getRegistros().size());
+        if (evento.key.keysym.sym == SDLK_LEFT && paginaHistorico > 0) --paginaHistorico;
+        if (evento.key.keysym.sym == SDLK_RIGHT &&
+            (paginaHistorico + 1) * REGISTROS_POR_PAGINA < total) ++paginaHistorico;
+        montarHistorico();
+    }
+
     const int total = static_cast<int>(opcoes.size());
     switch (evento.key.keysym.sym) {
     case SDLK_UP:
@@ -78,6 +92,26 @@ void MenuScene::handleEvent(const SDL_Event& evento) {
 
 void MenuScene::update(float dt) {
     tempo += dt;
+}
+
+void MenuScene::montarHistorico() {
+    titulo = "HISTÓRICO";
+    rodape = "ESQUERDA / DIREITA: PAGINAS | ENTER OU ESC: VOLTAR";
+    opcoes = {{"VOLTAR", PedidoCena::desempilhar()}};
+    linhas.clear();
+    const auto& registros = historico.getRegistros();
+    const int total = static_cast<int>(registros.size());
+    if (total == 0) linhas.push_back("Nenhuma pontuacao salva.");
+    // Mais recentes primeiro, sem excluir pontuacoes antigas.
+    for (int i = paginaHistorico * REGISTROS_POR_PAGINA;
+         i < total && i < (paginaHistorico + 1) * REGISTROS_POR_PAGINA; ++i) {
+        const ScoreEntry& registro = registros[total - 1 - i];
+        linhas.push_back(registro.nome + "  -  " + std::to_string(registro.pontos) + " pontos");
+    }
+    if (!historico.getErro().empty()) linhas.push_back(historico.getErro());
+    const int paginas = total == 0 ? 1 : (total + REGISTROS_POR_PAGINA - 1) / REGISTROS_POR_PAGINA;
+    rodape = "PAGINA " + std::to_string(paginaHistorico + 1) + "/" + std::to_string(paginas) +
+             " | " + rodape;
 }
 
 void MenuScene::desenharFundo() {

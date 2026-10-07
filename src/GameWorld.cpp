@@ -8,7 +8,8 @@
 #include "../include/Bullet.h"
 #include "../include/Cow.h"
 
-GameWorld::GameWorld(const ContextoJogo& contexto) : Scene(contexto) {
+GameWorld::GameWorld(const ContextoJogo& contexto)
+    : Scene(contexto), historico(contexto.caminhoHistorico) {
     mundo = std::make_unique<b2World>(b2Vec2(0.0f, GRAVIDADE));
     mundo->SetContactListener(&ouvinteContato);
 
@@ -18,6 +19,7 @@ GameWorld::GameWorld(const ContextoJogo& contexto) : Scene(contexto) {
 }
 
 GameWorld::~GameWorld() {
+    SDL_StopTextInput();
     for (auto& o : objetos) o->destroyBody(*mundo);
     objetos.clear();
     paraAdicionar.clear();
@@ -64,6 +66,10 @@ void GameWorld::setupLevel() {
 }
 
 void GameWorld::handleEvent(const SDL_Event& evento) {
+    if (terminado) {
+        handleFimDeJogo(evento);
+        return;
+    }
     
     
     if (evento.type == SDL_KEYDOWN && evento.key.keysym.sym == SDLK_ESCAPE) {
@@ -72,10 +78,6 @@ void GameWorld::handleEvent(const SDL_Event& evento) {
     }
 
     
-    if (terminado) {
-        if (evento.type == SDL_KEYDOWN) pedido = PedidoCena::trocar(TipoCena::MENU);
-        return;
-    }
 
     for (auto& o : objetos) o->handleEvent(evento);
 }
@@ -125,6 +127,42 @@ void GameWorld::update(float dt) {
     if (!jogador->isAlive() || jogador->hasWon()) {
         terminado = true;
         venceu = jogador->hasWon();
+        SDL_StartTextInput();
+    }
+}
+
+void GameWorld::handleFimDeJogo(const SDL_Event& evento) {
+    if (pontuacaoSalva || pedido.acao != AcaoCena::NENHUMA) return;
+    // O bloqueio acima evita salvar duas vezes na mesma fila de eventos.
+    if (evento.type == SDL_TEXTINPUT) {
+        // SDL entrega UTF-8. Conta caracteres, nao bytes, para aceitar acentos.
+        // Preserva espacos digitados; a limpeza final acontece ao salvar.
+        const std::string entrada = evento.text.text;
+        const std::string candidato = nomeJogador + entrada;
+        int caracteres = 0;
+        for (unsigned char byte : candidato) {
+            if ((byte & 0xC0) != 0x80) ++caracteres;
+        }
+        if (caracteres <= 24) nomeJogador = candidato;
+        mensagemHistorico.clear();
+    } else if (evento.type == SDL_KEYDOWN && evento.key.repeat == 0) {
+        if (evento.key.keysym.sym == SDLK_BACKSPACE && !nomeJogador.empty()) {
+            // Remove tambem os bytes de continuacao de um caractere acentuado.
+            auto inicio = nomeJogador.size() - 1;
+            while (inicio > 0 && (static_cast<unsigned char>(nomeJogador[inicio]) & 0xC0) == 0x80) --inicio;
+            nomeJogador.erase(inicio);
+        } else if (evento.key.keysym.sym == SDLK_RETURN || evento.key.keysym.sym == SDLK_KP_ENTER) {
+            if (historico.salvar(nomeJogador, pontuacao)) {
+                pontuacaoSalva = true;
+                SDL_StopTextInput();
+                pedido = PedidoCena::trocar(TipoCena::MENU);
+            } else {
+                mensagemHistorico = historico.getErro();
+            }
+        } else if (evento.key.keysym.sym == SDLK_ESCAPE && !mensagemHistorico.empty()) {
+            SDL_StopTextInput();
+            pedido = PedidoCena::trocar(TipoCena::MENU);
+        }
     }
 }
 
@@ -312,6 +350,14 @@ void GameWorld::renderFimDeJogo() {
 
     drawTextoCentralizado(contexto.fonteMenu, "PONTOS: " + std::to_string(pontuacao), centroX,
                           contexto.telaAltura / 2 + 20, branco);
-    drawTextoCentralizado(contexto.fonteHud, "APERTE QUALQUER TECLA PRA VOLTAR AO MENU", centroX,
+    drawTextoCentralizado(contexto.fonteHud, "SEU NOME: " + nomeJogador + "_", centroX,
                           contexto.telaAltura / 2 + 140, branco);
+    drawTextoCentralizado(contexto.fonteHud, "ENTER: SALVAR E VOLTAR AO MENU (ATE 24 CARACTERES)", centroX,
+                          contexto.telaAltura / 2 + 200, branco);
+    if (!mensagemHistorico.empty()) {
+        drawTextoCentralizado(contexto.fonteHud, mensagemHistorico, centroX,
+                              contexto.telaAltura / 2 + 260, vermelho);
+        drawTextoCentralizado(contexto.fonteHud, "ENTER: TENTAR NOVAMENTE | ESC: SAIR SEM SALVAR", centroX,
+                              contexto.telaAltura / 2 + 310, branco);
+    }
 }
