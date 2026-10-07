@@ -43,8 +43,8 @@ private:
     Mix_Chunk* somTiro = nullptr;
 
     Camera camera;
-    float temporizadorSpawnBandido = 0.0f;
-    float intervaloSpawnBandido = 5.0f;
+    float temporizadorSpawnBandido = 1.0f;
+    float intervaloSpawnBandido = 0.5f;
     int proxIdBandido = 0;
     int pontuacao = 0;
     bool terminado = false;

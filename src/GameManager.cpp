@@ -209,8 +209,6 @@ void GameManager::render() {
     SDL_SetRenderDrawColor(renderizacao, 135, 190, 230, 255);
     SDL_RenderClear(renderizacao);
 
-    // acha a ultima cena opaca e desenha dali pro topo, assim os menus
-    // transparentes aparecem em cascata por cima do que tem embaixo
     size_t primeira = 0;
     for (size_t i = pilha.size(); i > 0; --i) {
         if (!pilha[i - 1]->transparente()) {
